@@ -1,0 +1,42 @@
+{
+  "name": "Virtual Photo Booth",
+  "short_name": "PhotoBooth",
+  "description": "Free online photo booth — beautiful strips, cute stickers, instant download. No account needed.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdf4f9",
+  "theme_color": "#e8399a",
+  "orientation": "any",
+  "categories": ["photography", "entertainment", "social"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Photo Booth",
+      "short_name": "Start",
+      "description": "Jump straight into the booth",
+      "url": "/booth",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

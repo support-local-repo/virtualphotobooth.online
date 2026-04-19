@@ -1,0 +1,44 @@
+/* Virtual Photo Booth — Print Stylesheet
+   Applied only when user triggers window.print()
+   Optimised for A4 portrait — strips print cleanly */
+
+@media print {
+  /* Hide everything except the strip */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the strip canvas and its container */
+  #print-strip,
+  #print-strip * {
+    visibility: visible;
+  }
+
+  #print-strip {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 320px;
+    width: 100%;
+  }
+
+  /* Hide nav, buttons, donation, modals */
+  nav,
+  footer,
+  button,
+  [data-no-print],
+  .donation-button {
+    display: none !important;
+  }
+
+  /* White background for print */
+  @page {
+    size: A4 portrait;
+    margin: 20mm;
+  }
+
+  body {
+    background: white !important;
+  }
+}

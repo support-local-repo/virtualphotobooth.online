@@ -1,0 +1,218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────
+   Virtual Photo Booth — Global Styles
+   ───────────────────────────────────────── */
+
+@layer base {
+  :root {
+    /* Color tokens mirroring tailwind.config.ts */
+    --vpb-bg:          #fdf4f9;
+    --vpb-surface:     #fff8fc;
+    --vpb-surface2:    #ffeef7;
+    --vpb-border:      rgba(220, 120, 180, 0.15);
+    --vpb-border2:     rgba(220, 120, 180, 0.28);
+    --vpb-text:        #2d1a26;
+    --vpb-text2:       #7a5068;
+    --vpb-text3:       #b08898;
+    --vpb-primary:     #e8399a;
+    --vpb-primaryDim:  rgba(232, 57, 154, 0.12);
+    --vpb-primaryBdr:  rgba(232, 57, 154, 0.30);
+    --vpb-success:     #3db87a;
+    --vpb-warn:        #f0a020;
+    --vpb-error:       #e05858;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--vpb-bg);
+    color:            var(--vpb-text);
+    font-family:      "DM Sans", system-ui, sans-serif;
+    min-height:       100dvh;
+    overflow-x:       hidden;
+  }
+
+  /* Prevent iOS text size adjust */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+@layer components {
+  /* ─── Animated Gradient Background ─── */
+  .vpb-bg-animated {
+    background: linear-gradient(
+      135deg,
+      #ffd6e7 0%,
+      #e8d5f5 25%,
+      #ffe8d6 50%,
+      #d5eaf5 75%,
+      #ffd6e7 100%
+    );
+    background-size: 300% 300%;
+    animation: gradientShift 16s ease infinite;
+  }
+
+  /* ─── Bokeh Orbs ─── */
+  .vpb-bokeh-orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(60px);
+    opacity: 0.45;
+  }
+
+  /* ─── Glass Cards ─── */
+  .vpb-glass {
+    background:   rgba(255, 248, 252, 0.70);
+    border:       1px solid rgba(220, 120, 180, 0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+  }
+
+  .vpb-glass-sm {
+    background:   rgba(255, 248, 252, 0.65);
+    border:       1px solid rgba(220, 120, 180, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 12px;
+  }
+
+  /* ─── Film Grain Overlay ─── */
+  .vpb-grain::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px 128px;
+  }
+
+  /* ─── Primary Button ─── */
+  .vpb-btn-primary {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply font-body font-semibold text-sm;
+    @apply bg-vpb-primary text-white;
+    @apply rounded-pill px-6 py-3;
+    @apply transition-all duration-200;
+    @apply shadow-donation;
+    letter-spacing: 0.01em;
+  }
+
+  .vpb-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(232, 57, 154, 0.45);
+  }
+
+  .vpb-btn-primary:active {
+    transform: translateY(0);
+  }
+
+  /* ─── Secondary Button ─── */
+  .vpb-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply font-body font-medium text-sm;
+    @apply bg-vpb-surface border border-vpb-border2 text-vpb-text2;
+    @apply rounded-pill px-5 py-2.5;
+    @apply transition-all duration-200;
+  }
+
+  .vpb-btn-secondary:hover {
+    @apply border-vpb-primaryBdr text-vpb-primary bg-vpb-primaryDim;
+    transform: translateY(-1px);
+  }
+
+  /* ─── Input ─── */
+  .vpb-input {
+    @apply w-full bg-vpb-surface border border-vpb-border2;
+    @apply rounded-xl px-4 py-3 text-sm text-vpb-text;
+    @apply font-body transition-all duration-200 outline-none;
+  }
+
+  .vpb-input:focus {
+    border-color: var(--vpb-primaryBdr);
+    box-shadow: 0 0 0 3px var(--vpb-primaryDim);
+  }
+
+  .vpb-input::placeholder {
+    color: var(--vpb-text3);
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar — soft pink */
+  .vpb-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+  .vpb-scroll::-webkit-scrollbar-track { background: transparent; }
+  .vpb-scroll::-webkit-scrollbar-thumb {
+    background: rgba(232, 57, 154, 0.25);
+    border-radius: 99px;
+  }
+
+  /* Text gradient */
+  .vpb-text-gradient {
+    background: linear-gradient(135deg, #e8399a, #9b4dca);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* ─── Keyframes (referenced by tailwind.config.ts) ─── */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+@keyframes bokehFloat {
+  0%, 100% { transform: translateY(0px) scale(1); opacity: 0.4; }
+  50%       { transform: translateY(-30px) scale(1.1); opacity: 0.6; }
+}
+
+@keyframes countdownPop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes polaroidEject {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  40%  { transform: translateY(-20px) rotate(-3deg); opacity: 1; }
+  100% { transform: translateY(60px) rotate(2deg); opacity: 0; }
+}
+
+@keyframes heartPulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.18); }
+}
+
+@keyframes slideUp {
+  0%   { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes popIn {
+  0%   { transform: scale(0); opacity: 0; }
+  70%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shutterFlash {
+  0%   { opacity: 0; }
+  20%  { opacity: 0.85; }
+  100% { opacity: 0; }
+}
