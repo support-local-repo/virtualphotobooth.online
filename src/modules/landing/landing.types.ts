@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────
-// Landing Module Types
-// ─────────────────────────────────────────
-
 export type FeatureCard = {
   icon:        string;
   title:       string;
