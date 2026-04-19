@@ -52,6 +52,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
         {/* Print stylesheet */}
         <link rel="stylesheet" href="/print.css" media="print" />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1983087777566242"
+     crossOrigin="anonymous"></script>
       </head>
       <body>{children}</body>
     </html>

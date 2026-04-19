@@ -40,6 +40,7 @@ export default function BoothResult() {
   const [toast,         setToast]         = useState<string | null>(null);
   const [showGate,      setShowGate]      = useState(false);
   const [copied,        setCopied]        = useState(false);
+  const [printModal,     setPrintModal]     = useState(false);
   const [ready,         setReady]         = useState(false);
 
   const stripWrapperRef = useRef<HTMLDivElement>(null);
@@ -72,32 +73,13 @@ export default function BoothResult() {
   }
 
   function addSticker(emoji: string) {
-    setStickers((prev) => [...prev, createSticker(emoji, 0.3 + Math.random() * 0.4, 0.2 + Math.random() * 0.6)]);
-  }
-
-  // ─── Drag handlers ───────────────────────────────────────────────────────
-  function onStickerPointerDown(e: React.PointerEvent, stickerId: string) {
-    e.preventDefault();
-    e.stopPropagation();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    const s = stickers.find((s) => s.id === stickerId);
-    if (!s) return;
-    dragState.current = { id: stickerId, startX: e.clientX, startY: e.clientY, origX: s.x, origY: s.y };
-  }
-
-  function onStickerPointerMove(e: React.PointerEvent) {
-    const d = dragState.current;
-    if (!d) return;
-    const { width, height } = stripWrapperRef.current!.getBoundingClientRect();
-    const dx = (e.clientX - d.startX) / width;
-    const dy = (e.clientY - d.startY) / height;
-    setStickers((prev) =>
+    $1
+    setTextItems((prev) =>
       prev.map((s) => s.id === d.id
         ? { ...s, x: Math.max(0, Math.min(1, d.origX + dx)), y: Math.max(0, Math.min(1, d.origY + dy)) }
         : s
       )
     );
-  }
 
   function onStickerPointerUp() { dragState.current = null; }
   // ─────────────────────────────────────────────────────────────────────────
@@ -200,6 +182,34 @@ export default function BoothResult() {
               <div
                 key={sticker.id}
                 onPointerDown={(e) => onStickerPointerDown(e, sticker.id)}
+
+            {textItems.map((item) => (
+              <div
+                key={item.id}
+                onPointerDown={(e) => {
+                  e.preventDefault(); e.stopPropagation();
+                  (e.target as HTMLElement).setPointerCapture(e.pointerId);
+                  const el = { id: item.id, startX: e.clientX, startY: e.clientY, origX: item.x, origY: item.y };
+                  dragState.current = el as any;
+                }}
+                style={{
+                  position:    "absolute",
+                  left:        `${item.x * 100}%`,
+                  top:         `${item.y * 100}%`,
+                  transform:   "translate(-50%, -50%)",
+                  fontFamily:  item.font,
+                  fontSize:    "18px",
+                  color:       item.color,
+                  cursor:      "grab",
+                  userSelect:  "none",
+                  touchAction: "none",
+                  whiteSpace:  "nowrap",
+                  textShadow:  "0 1px 3px rgba(0,0,0,0.35)",
+                  fontWeight:  600,
+                }}>
+                {item.text}
+              </div>
+            ))}
                 style={{
                   position:    "absolute",
                   left:        `${sticker.x * 100}%`,
@@ -226,7 +236,7 @@ export default function BoothResult() {
             </div>
             <div className="grid grid-cols-3 gap-2">
               <button onClick={handleCopy}                className="vpb-btn-secondary justify-center py-2.5 text-xs">{copied ? "✓" : "Copy"}</button>
-              <button onClick={handlePrint}               className="vpb-btn-secondary justify-center py-2.5 text-xs">Print</button>
+              <button onClick={() => { setPrintModal(true); }} className="vpb-btn-secondary justify-center py-2.5 text-xs">Print</button>
               <button onClick={() => setEmailModal(true)} className="vpb-btn-secondary justify-center py-2.5 text-xs">Email</button>
             </div>
             <button onClick={() => router.push("/booth")} className="text-center font-mono text-xs py-2 transition-colors" style={{ color: "#b08898" }}>
