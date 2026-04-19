@@ -205,7 +205,7 @@ export default function BoothResult() {
                   left:        `${sticker.x * 100}%`,
                   top:         `${sticker.y * 100}%`,
                   transform:   "translate(-50%, -50%)",
-                  fontSize:    `${(sticker.size ?? 0.08) * 280}px`,
+                  fontSize:    "28px",
                   cursor:      "grab",
                   userSelect:  "none",
                   touchAction: "none",
