@@ -1,0 +1,26 @@
+globalThis.__BUILD_MANIFEST = {
+  "pages": {
+    "/_app": []
+  },
+  "devFiles": [],
+  "polyfillFiles": [
+    "static/chunks/0-a6_next_dist_build_polyfills_polyfill-nomodule.js"
+  ],
+  "lowPriorityFiles": [
+    "static/development/_buildManifest.js",
+    "static/development/_ssgManifest.js",
+    "static/development/_clientMiddlewareManifest.js"
+  ],
+  "rootMainFiles": [
+    "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_0or-m1m._.js",
+    "static/chunks/0-a6_next_dist_compiled_next-devtools_index_10jhz_k.js",
+    "static/chunks/0-a6_next_dist_compiled_react-dom_0i7c-oj._.js",
+    "static/chunks/0-a6_next_dist_compiled_react-server-dom-turbopack_0xk0d4v._.js",
+    "static/chunks/0-a6_next_dist_compiled_04d47a~._.js",
+    "static/chunks/0-a6_next_dist_client_0_ut0qg._.js",
+    "static/chunks/0-a6_next_dist_063cjp_._.js",
+    "static/chunks/0-a6_@swc_helpers_cjs_0dif31_._.js",
+    "static/chunks/Desktop_apps_virtualphotobooth_0rqeker._.js",
+    "static/chunks/turbopack-Desktop_apps_virtualphotobooth_0z39h8z._.js"
+  ]
+};
