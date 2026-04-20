@@ -73,16 +73,28 @@ export default function BoothResult() {
   }
 
   function addSticker(emoji: string) {
-    $1
-    setTextItems((prev) =>
-      prev.map((s) => s.id === d.id
-        ? { ...s, x: Math.max(0, Math.min(1, d.origX + dx)), y: Math.max(0, Math.min(1, d.origY + dy)) }
-        : s
-      )
-    );
+    setStickers((prev) => [...prev, createSticker(emoji, 0.3 + Math.random() * 0.4, 0.2 + Math.random() * 0.6)]);
+  }
 
-  function onStickerPointerUp() { dragState.current = null; }
-  // ─────────────────────────────────────────────────────────────────────────
+  function onItemPointerDown(e: React.PointerEvent, itemId: string, x: number, y: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    dragState.current = { id: itemId, startX: e.clientX, startY: e.clientY, origX: x, origY: y };
+  }
+
+  function onWrapperPointerMove(e: React.PointerEvent) {
+    const d = dragState.current;
+    if (!d || !stripWrapperRef.current) return;
+    const { width, height } = stripWrapperRef.current.getBoundingClientRect();
+    const dx = (e.clientX - d.startX) / width;
+    const dy = (e.clientY - d.startY) / height;
+    const clamp = (v: number) => Math.max(0, Math.min(1, v));
+    setStickers((prev) => prev.map((s) => s.id === d.id ? { ...s, x: clamp(d.origX + dx), y: clamp(d.origY + dy) } : s));
+    setTextItems((prev) => prev.map((t) => t.id === d.id ? { ...t, x: clamp(d.origX + dx), y: clamp(d.origY + dy) } : t));
+  }
+
+  function onWrapperPointerUp() { dragState.current = null; }
 
   async function handleDownload(format: "png" | "jpg" | "stories") {
     await exportStrip(format, config);
@@ -168,9 +180,9 @@ export default function BoothResult() {
             ref={stripWrapperRef}
             className="relative"
             style={{ maxWidth: 280, width: "100%" }}
-            onPointerMove={onStickerPointerMove}
-            onPointerUp={onStickerPointerUp}
-            onPointerLeave={onStickerPointerUp}
+            onPointerMove={onWrapperPointerMove}
+            onPointerUp={onWrapperPointerUp}
+            onPointerLeave={onWrapperPointerUp}
           >
             <motion.canvas ref={canvasRef}
               className="rounded-strip shadow-strip"
