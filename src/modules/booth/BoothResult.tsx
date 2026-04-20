@@ -13,6 +13,25 @@ import type { StripConfig, PlacedSticker, CapturedPhoto } from "@/modules/canvas
 
 const PAYPAL_URL = "https://www.paypal.com/ncp/payment/X2BF6EEGHCW2U";
 
+const FONTS: [string, string][] = [
+  ["Dancing Script",        "Dancing Script — feminine"],
+  ["Pacifico",              "Pacifico — cute"],
+  ["Lobster",               "Lobster — retro"],
+  ["Satisfy",               "Satisfy — elegant"],
+  ["Permanent Marker",      "Permanent Marker — bold"],
+  ["Righteous",             "Righteous — urban"],
+  ["Bebas Neue",            "Bebas Neue — strong"],
+  ["Abril Fatface",         "Abril Fatface — dramatic"],
+  ["Caveat",                "Caveat — handwritten"],
+  ["Covered By Your Grace", "Covered By Grace — teen"],
+  ["Rock Salt",             "Rock Salt — edgy"],
+  ["Special Elite",         "Special Elite — vintage"],
+];
+
+const FONT_IMPORT = "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Pacifico&family=Lobster&family=Satisfy&family=Permanent+Marker&family=Righteous&family=Bebas+Neue&family=Abril+Fatface&family=Caveat:wght@600&family=Covered+By+Your+Grace&family=Rock+Salt&family=Special+Elite&display=swap";
+
+type TextItem = { id: string; text: string; font: string; color: string; x: number; y: number };
+
 export default function BoothResult() {
   const router  = useRouter();
   const params  = useSearchParams();
@@ -41,6 +60,10 @@ export default function BoothResult() {
   const [showGate,      setShowGate]      = useState(false);
   const [copied,        setCopied]        = useState(false);
   const [printModal,     setPrintModal]     = useState(false);
+  const [textItems,      setTextItems]      = useState<TextItem[]>([]);
+  const [textInput,      setTextInput]      = useState("");
+  const [textFont,       setTextFont]       = useState("Dancing Script");
+  const [textColor,      setTextColor]      = useState("#e8399a");
   const [ready,         setReady]         = useState(false);
 
   const stripWrapperRef = useRef<HTMLDivElement>(null);
@@ -56,6 +79,19 @@ export default function BoothResult() {
       }
     } catch { setReady(true); }
   }, []);
+
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel  = "stylesheet";
+    link.href = FONT_IMPORT;
+    document.head.appendChild(link);
+  }, []);
+
+  function addTextItem() {
+    if (!textInput.trim()) return;
+    setTextItems((prev) => [...prev, { id: crypto.randomUUID(), text: textInput.trim(), font: textFont, color: textColor, x: 0.5, y: 0.5 }]);
+    setTextInput("");
+  }
 
   const config: StripConfig = {
     layout, filter, theme, borderWidth, showDate,
@@ -298,6 +334,39 @@ export default function BoothResult() {
             </div>
           )}
 
+          {activeTab === "text" && (
+            <div className="flex flex-col gap-3">
+              <input type="text" value={textInput} onChange={(e) => setTextInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") addTextItem(); }}
+                placeholder="Type your text..." className="vpb-input" maxLength={40} />
+              <div className="grid grid-cols-6 gap-1">
+                {(["#e8399a", "#ffffff", "#2d1a26", "#f0c040", "#4ecdc4", "#a855f7"] as const).map((c) => (
+                  <button key={c} onClick={() => setTextColor(c)}
+                    className="h-7 rounded-lg border-2 transition-all"
+                    style={{ background: c, borderColor: textColor === c ? "#fff" : "transparent" }} />
+                ))}
+              </div>
+              <select value={textFont} onChange={(e) => setTextFont(e.target.value)}
+                className="vpb-input text-sm" style={{ fontFamily: textFont }}>
+                {FONTS.map(([val, label]) => (
+                  <option key={val} value={val} style={{ fontFamily: val }}>{label}</option>
+                ))}
+              </select>
+              <button onClick={addTextItem} className="vpb-btn-primary justify-center py-2.5 text-sm">
+                Add Text to Strip
+              </button>
+              {textItems.length > 0 && (
+                <div className="flex gap-3 items-center">
+                  <button onClick={() => setTextItems((p) => p.slice(0, -1))} className="font-mono text-xs" style={{ color: "#b08898" }}>Undo last</button>
+                  <button onClick={() => setTextItems([])} className="font-mono text-xs" style={{ color: "#b08898" }}>Clear all</button>
+                </div>
+              )}
+              {textItems.length > 0 && (
+                <p className="font-mono text-xs" style={{ color: "#d4a8c0" }}>Drag text on the strip to reposition</p>
+              )}
+            </div>
+          )}
+
           {activeTab === "options" && (
             <div className="flex flex-col gap-5">
               <div className="flex items-center justify-between">
@@ -330,6 +399,28 @@ export default function BoothResult() {
           )}
         </div>
       </div>
+
+      <AnimatePresence>
+        {printModal && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(45,26,38,0.50)" }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={(e) => { if (e.target === e.currentTarget) setPrintModal(false); }}>
+            <motion.div className="vpb-glass p-8 w-full max-w-sm rounded-card shadow-modal text-center"
+              initial={{ scale: 0.92, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 16 }}>
+              <h3 className="font-display text-xl font-bold mb-2" style={{ color: "#2d1a26" }}>Print Size</h3>
+              <p className="font-body text-sm mb-6" style={{ color: "#7a5068" }}>Choose a size before printing.</p>
+              <div className="flex flex-col gap-3">
+                {([["wallet", "Wallet — small"], ["strip", "Strip — standard"], ["4x6", "4x6 — large"]] as ["wallet"|"strip"|"4x6", string][]).map(([size, label]) => (
+                  <button key={size} onClick={() => { handlePrint(size); setPrintModal(false); }}
+                    className="vpb-btn-secondary justify-center py-3 text-sm">{label}</button>
+                ))}
+              </div>
+              <button onClick={() => setPrintModal(false)} className="w-full text-center font-mono text-xs py-3 mt-2" style={{ color: "#b08898" }}>Cancel</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {emailModal && (
