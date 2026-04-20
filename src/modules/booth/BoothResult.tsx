@@ -51,7 +51,7 @@ export default function BoothResult() {
   const [stickers,      setStickers]      = useState<PlacedSticker[]>([]);
   const [showDate,      setShowDate]      = useState(true);
   const [showWatermark, setShowWatermark] = useState(true);
-  const [activeTab,     setActiveTab]     = useState<"stickers" | "options">("stickers");
+  const [activeTab,     setActiveTab]     = useState<"stickers" | "text" | "options">("stickers");
   const [activePack,    setActivePack]    = useState(0);
   const [emailModal,    setEmailModal]    = useState(false);
   const [email,         setEmail]         = useState("");
@@ -147,16 +147,19 @@ export default function BoothResult() {
     } else { showToast("Copy not supported on this device"); }
   }
 
-  function handlePrint() {
+  function handlePrint(size: "wallet" | "strip" | "4x6") {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const maxW = { wallet: 160, strip: 280, "4x6": 380 }[size];
     const win = window.open("", "_blank");
     if (!win) return;
-    win.document.write(`<html><head><title>Virtual Photo Booth</title>
-      <style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fdf4f9;}
-      img{max-width:320px;width:100%;box-shadow:0 8px 32px rgba(180,80,160,0.20);}
-      @media print{body{background:white;}}</style></head>
-      <body><img src="${canvas.toDataURL("image/png")}" onload="window.print();window.close();" /></body></html>`);
+    win.document.write(
+      "<html><head><title>Virtual Photo Booth</title>" +
+      "<style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fdf4f9;}" +
+      "img{max-width:" + maxW + "px;width:100%;box-shadow:0 8px 32px rgba(180,80,160,0.20);}" +
+      "@media print{body{background:white;}}</style></head>" +
+      "<body><img src=\"" + canvas.toDataURL("image/png") + "\" onload=\"window.print();window.close();\" /></body></html>"
+    );
   }
 
   async function handleEmail() {
@@ -264,8 +267,6 @@ export default function BoothResult() {
                   fontWeight:  600,
                 }}>
                 {item.text}
-              </div>
-            ))}
               </div>
             ))}
           </div>
