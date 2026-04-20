@@ -191,9 +191,17 @@ export default function BoothResult() {
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} />
 
             {stickers.map((sticker) => (
-              <div
-                key={sticker.id}
-                onPointerDown={(e) => onStickerPointerDown(e, sticker.id)}
+              <div key={sticker.id}
+                onPointerDown={(e) => onItemPointerDown(e, sticker.id, sticker.x, sticker.y)}
+                style={{
+                  position: "absolute", left: sticker.x * 100 + "%", top: sticker.y * 100 + "%",
+                  transform: "translate(-50%, -50%)", fontSize: "28px",
+                  cursor: "grab", userSelect: "none", touchAction: "none",
+                  lineHeight: 1, filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.25))",
+                }}>
+                {sticker.emoji}
+              </div>
+            ))}
 
             {textItems.map((item) => (
               <div
@@ -222,20 +230,6 @@ export default function BoothResult() {
                 {item.text}
               </div>
             ))}
-                style={{
-                  position:    "absolute",
-                  left:        `${sticker.x * 100}%`,
-                  top:         `${sticker.y * 100}%`,
-                  transform:   "translate(-50%, -50%)",
-                  fontSize:    "28px",
-                  cursor:      "grab",
-                  userSelect:  "none",
-                  touchAction: "none",
-                  lineHeight:  1,
-                  filter:      "drop-shadow(0 1px 3px rgba(0,0,0,0.25))",
-                }}
-              >
-                {sticker.emoji}
               </div>
             ))}
           </div>
@@ -259,7 +253,7 @@ export default function BoothResult() {
 
         <div className="vpb-glass p-5">
           <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: "rgba(232,57,154,0.06)" }}>
-            {(["stickers", "options"] as const).map((tab) => (
+            {(["stickers", "text", "options"] as const).map((tab) => (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 className="flex-1 py-2 rounded-lg font-mono text-xs font-semibold tracking-widest uppercase transition-all duration-200"
                 style={{ background: activeTab === tab ? "#e8399a" : "transparent", color: activeTab === tab ? "#fff" : "#7a5068" }}>
