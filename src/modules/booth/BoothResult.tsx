@@ -8,10 +8,7 @@ import { LAYOUT_OPTIONS, CAMERA_FILTERS, STRIP_THEMES } from "@/core/theme";
 import { STICKER_PACKS } from "@/config/stickers.config";
 import { createSticker } from "@/modules/canvas/stickers";
 import { copyCanvasToClipboard } from "@/shared/utils/clipboard";
-import { useSessionFlag, SESSION_FLAGS } from "@/shared/hooks/useSessionFlag";
 import type { StripConfig, PlacedSticker, CapturedPhoto } from "@/modules/canvas/canvas.types";
-
-const PAYPAL_URL = "https://www.paypal.com/ncp/payment/X2BF6EEGHCW2U";
 
 const FONTS: [string, string][] = [
   ["Dancing Script",        "Dancing Script — feminine"],
@@ -36,7 +33,6 @@ export default function BoothResult() {
   const router  = useRouter();
   const params  = useSearchParams();
   const { canvasRef, renderStrip, exportStrip, getDataUrl } = useCanvas();
-  const watermarkUnlocked = useSessionFlag(SESSION_FLAGS.WATERMARK_UNLOCKED);
 
   const layoutId    = params.get("layout")      ?? "4";
   const filterId    = params.get("filter")      ?? "normal";
@@ -50,14 +46,12 @@ export default function BoothResult() {
   const [photos,        setPhotos]        = useState<CapturedPhoto[]>([]);
   const [stickers,      setStickers]      = useState<PlacedSticker[]>([]);
   const [showDate,      setShowDate]      = useState(true);
-  const [showWatermark, setShowWatermark] = useState(true);
   const [activeTab,     setActiveTab]     = useState<"stickers" | "text" | "options">("stickers");
   const [activePack,    setActivePack]    = useState(0);
   const [emailModal,    setEmailModal]    = useState(false);
   const [email,         setEmail]         = useState("");
   const [emailState,    setEmailState]    = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [toast,         setToast]         = useState<string | null>(null);
-  const [showGate,      setShowGate]      = useState(false);
   const [copied,        setCopied]        = useState(false);
   const [printModal,     setPrintModal]     = useState(false);
   const [textItems,      setTextItems]      = useState<TextItem[]>([]);
@@ -95,13 +89,13 @@ export default function BoothResult() {
 
   const config: StripConfig = {
     layout, filter, theme, borderWidth, showDate,
-    showWatermark: showWatermark && !watermarkUnlocked.value,
+    showWatermark: false,
     stickers, textOverlay: null,
   };
 
   useEffect(() => {
     if (ready && photos.length > 0) renderStrip(photos, config);
-  }, [ready, photos, stickers, showDate, showWatermark, watermarkUnlocked.value]);
+  }, [ready, photos, stickers, showDate]);
 
   function showToast(msg: string) {
     setToast(msg);
@@ -174,10 +168,6 @@ export default function BoothResult() {
     } catch { setEmailState("error"); showToast("Email failed — please try again"); }
   }
 
-  function handleWatermarkToggle() {
-    if (showWatermark && !watermarkUnlocked.value) setShowGate(true);
-    else setShowWatermark((p) => !p);
-  }
 
   if (!ready) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -382,20 +372,7 @@ export default function BoothResult() {
                     style={{ transform: showDate ? "translateX(22px)" : "translateX(2px)" }} />
                 </button>
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-body text-sm font-semibold" style={{ color: "#2d1a26" }}>Watermark</p>
-                  <p className="font-mono text-xs" style={{ color: "#b08898" }}>
-                    {watermarkUnlocked.value ? "Unlocked ✓" : "Remove for $1.99 donation"}
-                  </p>
-                </div>
-                <button onClick={handleWatermarkToggle}
-                  className="w-11 h-6 rounded-pill relative transition-colors duration-200"
-                  style={{ background: (!showWatermark || watermarkUnlocked.value) ? "#e8399a" : "rgba(220,120,180,0.25)" }}>
-                  <div className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200"
-                    style={{ transform: (!showWatermark || watermarkUnlocked.value) ? "translateX(22px)" : "translateX(2px)" }} />
-                </button>
-              </div>
+
             </div>
           )}
         </div>
@@ -440,30 +417,6 @@ export default function BoothResult() {
                 {emailState === "sending" ? "Sending..." : emailState === "sent" ? "Sent ✓" : "Send Strip 📧"}
               </button>
               <button onClick={() => setEmailModal(false)} className="w-full text-center font-mono text-xs py-2" style={{ color: "#b08898" }}>Cancel</button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showGate && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: "rgba(45,26,38,0.50)" }}
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={(e) => { if (e.target === e.currentTarget) setShowGate(false); }}>
-            <motion.div className="vpb-glass p-8 w-full max-w-sm rounded-card shadow-modal text-center"
-              initial={{ scale: 0.92, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 16 }}>
-              <p className="text-4xl mb-3">🩷</p>
-              <h3 className="font-display text-xl font-bold mb-2" style={{ color: "#2d1a26" }}>Support the project</h3>
-              <p className="font-body text-sm mb-6" style={{ color: "#7a5068" }}>
-                Remove the watermark with a small $1.99 donation. It helps keep Virtual Photo Booth free for everyone.
-              </p>
-              <a href={PAYPAL_URL} target="_blank" rel="noopener noreferrer"
-                onClick={() => { watermarkUnlocked.set(true); setShowWatermark(false); setShowGate(false); showToast("Watermark removed — thank you 🩷"); }}
-                className="vpb-btn-primary w-full justify-center py-3 mb-3 block">
-                Donate $1.99 & Remove Watermark
-              </a>
-              <button onClick={() => setShowGate(false)} className="w-full text-center font-mono text-xs py-2" style={{ color: "#b08898" }}>Keep watermark</button>
             </motion.div>
           </motion.div>
         )}

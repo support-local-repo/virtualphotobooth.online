@@ -123,6 +123,18 @@ export function applyCool(data: Uint8ClampedArray): void {
 }
 
 /**
+ * Vintage: faded + warm + slight green lift + low contrast
+ */
+export function applyVintage(data: Uint8ClampedArray): void {
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    data[i]     = Math.min(255, r * 1.06 + 14);
+    data[i + 1] = Math.min(255, g * 0.98 + 10);
+    data[i + 2] = Math.min(255, b * 0.82 + 20);
+  }
+}
+
+/**
  * Master filter dispatcher — applies filter by ID to canvas ImageData
  */
 export function applyFilterById(

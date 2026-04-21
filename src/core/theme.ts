@@ -93,7 +93,8 @@ export const CAMERA_FILTERS: FilterOption[] = [
   { id: "faded",    label: "Faded",     css: "saturate(70%) brightness(110%) contrast(90%)" },
   { id: "vignette", label: "Vignette",  css: "brightness(95%) contrast(108%)" }, // vignette added on canvas
   { id: "filmburn", label: "Film Burn", css: "sepia(40%) saturate(120%) hue-rotate(10deg) contrast(105%)" },
-  { id: "hearts",   label: "♡ Hearts",  css: "saturate(120%) brightness(102%)" }, // hearts overlaid on canvas
+  { id: "hearts",   label: "♡ Hearts",  css: "saturate(120%) brightness(102%)" },
+  { id: "vintage",  label: "Vintage",   css: "saturate(85%) sepia(30%) brightness(105%) contrast(90%)" }, // hearts overlaid on canvas
 ];
 
 // Countdown durations (ms)
@@ -105,5 +106,4 @@ export const AUTO_ADVANCE_DELAY   = 1500;
 export const EXPORT_SCALE         = 2;    // 2x for retina
 export const STRIP_WIDTH_PX       = 320;
 export const PHOTO_HEIGHT_PX      = 240;
-export const WATERMARK_TEXT       = "virtualphotobooth.online";
-export const WATERMARK_FONT_SIZE  = 11;
+
