@@ -54,6 +54,7 @@ export const BORDER_WIDTHS = {
   thin:   8,
   medium: 16,
   thick:  28,
+  none:   0,
 } as const;
 
 // Photo layout definitions
@@ -73,7 +74,6 @@ export const LAYOUT_OPTIONS: LayoutOption[] = [
   { id: "4",          label: "Classic",   count: 4, cols: 1, rows: 4, icon: "▭▭▭▭" },
   { id: "6",          label: "Grid",      count: 6, cols: 2, rows: 3, icon: "⊞" },
   { id: "wide",       label: "Wide",      count: 3, cols: 3, rows: 1, icon: "▬" },
-  { id: "outofframe", label: "No Border", count: 4, cols: 1, rows: 4, icon: "⬛" },
 ];
 
 // Camera filters

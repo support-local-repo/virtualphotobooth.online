@@ -13,6 +13,7 @@ export default function BoothMenu() {
   const [themeId,     setThemeId]     = useState("white");
   const [borderWidth, setBorderWidth] = useState(16);
   const [mode,        setMode]        = useState("camera");
+  const [backdrop,    setBackdrop]    = useState<string | null>(null);
 
   const layout = LAYOUT_OPTIONS.find((l) => l.id === layoutId) ?? LAYOUT_OPTIONS[3];
   const filter = CAMERA_FILTERS.find((f) => f.id === filterId) ?? CAMERA_FILTERS[0];
@@ -25,6 +26,8 @@ export default function BoothMenu() {
       theme:  themeId,
       borderWidth: String(borderWidth),
     });
+    if (backdrop) sessionStorage.setItem("vpb_backdrop", backdrop);
+    else sessionStorage.removeItem("vpb_backdrop");
     router.push("/booth/" + mode + "?" + params.toString());
   }
 
@@ -74,6 +77,27 @@ export default function BoothMenu() {
               </button>
             ))}
           </div>
+        </motion.div>
+
+        <motion.div variants={staggerItem} className="vpb-glass p-5">
+          <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: "#b08898" }}>Backdrop — optional</p>
+          <p className="font-mono text-xs mb-3" style={{ color: "#b08898" }}>Upload a background — birthday, wedding, events</p>
+          <label className="vpb-btn-secondary justify-center py-2.5 text-xs cursor-pointer flex items-center gap-2">
+            🖼️ Upload Backdrop
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = (ev) => setBackdrop(ev.target?.result as string);
+              reader.readAsDataURL(file);
+            }} />
+          </label>
+          {backdrop && (
+            <div className="mt-3 flex flex-col gap-2">
+              <img src={backdrop} alt="backdrop preview" className="rounded-xl w-full object-cover" style={{ maxHeight: 120 }} />
+              <button onClick={() => setBackdrop(null)} className="font-mono text-xs" style={{ color: "#b08898" }}>✕ Remove backdrop</button>
+            </div>
+          )}
         </motion.div>
 
         <motion.div variants={staggerItem} className="vpb-glass p-5">
