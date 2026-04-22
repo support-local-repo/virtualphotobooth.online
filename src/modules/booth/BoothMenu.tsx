@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/core/transitions";
 import { LAYOUT_OPTIONS, CAMERA_FILTERS, STRIP_THEMES, BORDER_WIDTHS } from "@/core/theme";
+import { PHOTO_TEMPLATES } from "@/config/templates.config";
 
 export default function BoothMenu() {
   const router = useRouter();
@@ -13,6 +14,8 @@ export default function BoothMenu() {
   const [themeId,     setThemeId]     = useState("white");
   const [borderWidth, setBorderWidth] = useState(16);
   const [mode,        setMode]        = useState("camera");
+  const [templateId,  setTemplateId]  = useState("none");
+  const [customTpl,   setCustomTpl]   = useState<string | null>(null);
   const [backdrop,    setBackdrop]    = useState<string | null>(null);
 
   const layout = LAYOUT_OPTIONS.find((l) => l.id === layoutId) ?? LAYOUT_OPTIONS[3];
@@ -28,6 +31,10 @@ export default function BoothMenu() {
     });
     if (backdrop) sessionStorage.setItem("vpb_backdrop", backdrop);
     else sessionStorage.removeItem("vpb_backdrop");
+    const tpl = PHOTO_TEMPLATES.find(t => t.id === templateId);
+    if (templateId === "custom" && customTpl) sessionStorage.setItem("vpb_template", customTpl);
+    else if (tpl?.url) sessionStorage.setItem("vpb_template", tpl.url);
+    else sessionStorage.removeItem("vpb_template");
     router.push("/booth/" + mode + "?" + params.toString());
   }
 
@@ -80,23 +87,38 @@ export default function BoothMenu() {
         </motion.div>
 
         <motion.div variants={staggerItem} className="vpb-glass p-5">
-          <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: "#b08898" }}>Backdrop — optional</p>
-          <p className="font-mono text-xs mb-3" style={{ color: "#b08898" }}>Upload a background — birthday, wedding, events</p>
-          <label className="vpb-btn-secondary justify-center py-2.5 text-xs cursor-pointer flex items-center gap-2">
-            🖼️ Upload Backdrop
-            <input type="file" accept="image/*" className="hidden" onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              const reader = new FileReader();
-              reader.onload = (ev) => setBackdrop(ev.target?.result as string);
-              reader.readAsDataURL(file);
-            }} />
-          </label>
-          {backdrop && (
-            <div className="mt-3 flex flex-col gap-2">
-              <img src={backdrop} alt="backdrop preview" className="rounded-xl w-full object-cover" style={{ maxHeight: 120 }} />
-              <button onClick={() => setBackdrop(null)} className="font-mono text-xs" style={{ color: "#b08898" }}>✕ Remove backdrop</button>
+          <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: "#b08898" }}>Photo Template</p>
+          <div className="grid grid-cols-4 gap-2 mb-3">
+            {PHOTO_TEMPLATES.map((t) => (
+              <button key={t.id} onClick={() => setTemplateId(t.id)}
+                className="flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200"
+                style={{
+                  background: templateId === t.id ? "rgba(232,57,154,0.12)" : "transparent",
+                  border: "1px solid " + (templateId === t.id ? "rgba(232,57,154,0.40)" : "rgba(220,120,180,0.15)"),
+                }}>
+                <span className="text-xl">{t.icon}</span>
+                <span className="font-mono text-[9px] tracking-wide text-center" style={{ color: templateId === t.id ? "#e8399a" : "#b08898" }}>{t.label}</span>
+              </button>
+            ))}
+          </div>
+          {templateId === "custom" && (
+            <div className="flex flex-col gap-2">
+              <label className="vpb-btn-secondary justify-center py-2.5 text-xs cursor-pointer flex items-center gap-2">
+                Upload Template PNG
+                <input type="file" accept="image/png,image/jpeg" className="hidden" onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = (ev) => setCustomTpl(ev.target?.result as string);
+                  reader.readAsDataURL(file);
+                }} />
+              </label>
+              {customTpl && <img src={customTpl} alt="template preview" className="rounded-xl w-full object-cover mt-2" style={{ maxHeight: 140 }} />}
             </div>
+          )}
+          {templateId !== "none" && templateId !== "custom" && (
+            <img src={PHOTO_TEMPLATES.find(t => t.id === templateId)?.url ?? ""} alt="template preview"
+              className="rounded-xl w-full object-cover mt-2" style={{ maxHeight: 140 }} />
           )}
         </motion.div>
 

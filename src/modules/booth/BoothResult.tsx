@@ -59,7 +59,6 @@ export default function BoothResult() {
   const [textFont,       setTextFont]       = useState("Dancing Script");
   const [textColor,      setTextColor]      = useState("#e8399a");
   const [ready,         setReady]         = useState(false);
-  const [backdrop,       setBackdrop]       = useState<string | null>(null);
 
   const stripWrapperRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
