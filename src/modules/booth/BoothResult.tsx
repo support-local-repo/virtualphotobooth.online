@@ -373,25 +373,7 @@ export default function BoothResult() {
                 </button>
               </div>
 
-              {/* Backdrop upload */}
-              <div>
-                <p className="font-body text-sm font-semibold mb-1" style={{ color: "#2d1a26" }}>Backdrop</p>
-                <p className="font-mono text-xs mb-3" style={{ color: "#b08898" }}>Upload a background — birthday, wedding, events</p>
-                <div className="flex flex-col gap-2">
-                  <label className="vpb-btn-secondary justify-center py-2.5 text-xs cursor-pointer text-center">
-                    Upload Image
-                    <input type="file" accept="image/*" className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        const reader = new FileReader();
-                        reader.readAsDataURL(file);
-                      }} />
-                  </label>
-                  {backdrop && (
-                  )}
-                </div>
-              </div>
+
 
             </div>
           )}
