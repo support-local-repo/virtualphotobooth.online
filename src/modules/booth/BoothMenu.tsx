@@ -16,7 +16,6 @@ export default function BoothMenu() {
   const [mode,        setMode]        = useState("camera");
   const [templateId,  setTemplateId]  = useState("none");
   const [customTpl,   setCustomTpl]   = useState<string | null>(null);
-  const [backdrop,    setBackdrop]    = useState<string | null>(null);
 
   const layout = LAYOUT_OPTIONS.find((l) => l.id === layoutId) ?? LAYOUT_OPTIONS[3];
   const filter = CAMERA_FILTERS.find((f) => f.id === filterId) ?? CAMERA_FILTERS[0];
@@ -29,8 +28,6 @@ export default function BoothMenu() {
       theme:  themeId,
       borderWidth: String(borderWidth),
     });
-    if (backdrop) sessionStorage.setItem("vpb_backdrop", backdrop);
-    else sessionStorage.removeItem("vpb_backdrop");
     const tpl = PHOTO_TEMPLATES.find(t => t.id === templateId);
     if (templateId === "custom" && customTpl) sessionStorage.setItem("vpb_template", customTpl);
     else if (tpl?.url) sessionStorage.setItem("vpb_template", tpl.url);
