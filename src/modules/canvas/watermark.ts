@@ -3,7 +3,8 @@
 // Draws subtle site watermark on the strip canvas
 // ─────────────────────────────────────────
 
-import { WATERMARK_TEXT, WATERMARK_FONT_SIZE } from "@/core/theme";
+const WATERMARK_TEXT = "virtualphotobooth.online";
+const WATERMARK_FONT_SIZE = 11;
 
 /**
  * Draws a subtle watermark at the bottom of the canvas.
