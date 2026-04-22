@@ -44,6 +44,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <meta name="ahrefs-site-verification" content="3f4af3653498b37459357be6dcaec1312d88e394245fa0919e8beaadb6ecf276" />
         {/* Google Fonts — Playfair Display + DM Sans + Cormorant Garamond */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
