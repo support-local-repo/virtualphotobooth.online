@@ -59,6 +59,7 @@ export default function BoothResult() {
   const [textFont,       setTextFont]       = useState("Dancing Script");
   const [textColor,      setTextColor]      = useState("#e8399a");
   const [ready,         setReady]         = useState(false);
+  const [backdrop,       setBackdrop]       = useState<string | null>(null);
 
   const stripWrapperRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
@@ -141,10 +142,10 @@ export default function BoothResult() {
     } else { showToast("Copy not supported on this device"); }
   }
 
-  function handlePrint(size: "wallet" | "strip" | "4x6") {
+  function handlePrint(size: "wallet" | "strip" | "4x6" | "3r" | "4r") {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const maxW = { wallet: 160, strip: 280, "4x6": 380 }[size];
+    const maxW = { wallet: 160, strip: 280, "4x6": 380, "3r": 300, "4r": 380 }[size];
     const win = window.open("", "_blank");
     if (!win) return;
     win.document.write(
@@ -373,6 +374,28 @@ export default function BoothResult() {
                 </button>
               </div>
 
+              {/* Backdrop upload */}
+              <div>
+                <p className="font-body text-sm font-semibold mb-1" style={{ color: "#2d1a26" }}>Backdrop</p>
+                <p className="font-mono text-xs mb-3" style={{ color: "#b08898" }}>Upload a background — birthday, wedding, events</p>
+                <div className="flex flex-col gap-2">
+                  <label className="vpb-btn-secondary justify-center py-2.5 text-xs cursor-pointer text-center">
+                    Upload Image
+                    <input type="file" accept="image/*" className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = (ev) => setBackdrop(ev.target?.result as string);
+                        reader.readAsDataURL(file);
+                      }} />
+                  </label>
+                  {backdrop && (
+                    <button onClick={() => setBackdrop(null)} className="font-mono text-xs" style={{ color: "#b08898" }}>✕ Remove backdrop</button>
+                  )}
+                </div>
+              </div>
+
             </div>
           )}
         </div>
@@ -389,7 +412,7 @@ export default function BoothResult() {
               <h3 className="font-display text-xl font-bold mb-2" style={{ color: "#2d1a26" }}>Print Size</h3>
               <p className="font-body text-sm mb-6" style={{ color: "#7a5068" }}>Choose a size before printing.</p>
               <div className="flex flex-col gap-3">
-                {([["wallet", "Wallet — small"], ["strip", "Strip — standard"], ["4x6", "4x6 — large"]] as ["wallet"|"strip"|"4x6", string][]).map(([size, label]) => (
+                {([["wallet", "Wallet — small"], ["strip", "Strip — standard"], ["3r", "3R — 3×5 inch"], ["4r", "4R — 4×6 inch"], ["4x6", "4×6 — large"]] as ["wallet"|"strip"|"4x6"|"3r"|"4r", string][]).map(([size, label]) => (
                   <button key={size} onClick={() => { handlePrint(size); setPrintModal(false); }}
                     className="vpb-btn-secondary justify-center py-3 text-sm">{label}</button>
                 ))}
