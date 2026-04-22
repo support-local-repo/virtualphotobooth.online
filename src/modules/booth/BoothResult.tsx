@@ -385,12 +385,10 @@ export default function BoothResult() {
                         const file = e.target.files?.[0];
                         if (!file) return;
                         const reader = new FileReader();
-                        reader.onload = (ev) => setBackdrop(ev.target?.result as string);
                         reader.readAsDataURL(file);
                       }} />
                   </label>
                   {backdrop && (
-                    <button onClick={() => setBackdrop(null)} className="font-mono text-xs" style={{ color: "#b08898" }}>✕ Remove backdrop</button>
                   )}
                 </div>
               </div>
