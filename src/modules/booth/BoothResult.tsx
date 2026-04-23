@@ -142,7 +142,6 @@ export default function BoothResult() {
     function onUp() {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
-      setTimeout(() => renderStrip(photos, config), 30);
     }
 
     window.addEventListener("pointermove", onMove);
