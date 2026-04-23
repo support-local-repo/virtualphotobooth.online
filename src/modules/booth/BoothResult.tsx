@@ -256,12 +256,7 @@ export default function BoothResult() {
             {textItems.map((item) => (
               <div
                 key={item.id}
-                onPointerDown={(e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  (e.target as HTMLElement).setPointerCapture(e.pointerId);
-                  const el = { id: item.id, startX: e.clientX, startY: e.clientY, origX: item.x, origY: item.y };
-                  dragState.current = el as any;
-                }}
+                onPointerDown={(e) => onItemPointerDown(e, item.id, item.x, item.y)}
                 style={{
                   position:    "absolute",
                   left:        `${item.x * 100}%`,
