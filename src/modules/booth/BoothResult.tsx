@@ -242,6 +242,7 @@ export default function BoothResult() {
                   transform: "translate(-50%, -50%)", fontSize: "28px",
                   cursor: "grab", userSelect: "none", touchAction: "none",
                   lineHeight: 1, filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.25))",
+                  zIndex: 10, pointerEvents: "auto",
                 }}>
                 {sticker.emoji}
               </div>
@@ -275,46 +276,7 @@ export default function BoothResult() {
               </div>
             ))}
 
-            {/* Draggable custom frame — rendered BEFORE canvas so it sits behind photos */}
-            {frameSrc && (
-              <div
-                style={{
-                  position: "absolute", inset: 0, overflow: "hidden",
-                  pointerEvents: "none", zIndex: 0,
-                }}
-              >
-                <img
-                  src={frameSrc}
-                  alt="custom frame"
-                  draggable={false}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-                    frameDragRef.current = { startX: e.clientX, startY: e.clientY, origX: framePos.x, origY: framePos.y };
-                  }}
-                  onPointerMove={(e) => {
-                    if (!frameDragRef.current) return;
-                    const dx = e.clientX - frameDragRef.current.startX;
-                    const dy = e.clientY - frameDragRef.current.startY;
-                    setFramePos({ x: frameDragRef.current.origX + dx, y: frameDragRef.current.origY + dy });
-                  }}
-                  onPointerUp={() => { frameDragRef.current = null; }}
-                  style={{
-                    position: "absolute",
-                    left:   `calc(50% + ${framePos.x}px - ${frameScale * 50}%)`,
-                    top:    `calc(50% + ${framePos.y}px - ${frameScale * 50}%)`,
-                    width:  `${100 * frameScale}%`,
-                    height: `${100 * frameScale}%`,
-                    objectFit: "cover",
-                    cursor: "grab",
-                    pointerEvents: "auto",
-                    userSelect: "none",
-                    touchAction: "none",
-                    opacity: 0.92,
-                  }}
-                />
-              </div>
-            )}
+
           </div>
 
           {/* Frame scale slider */}
