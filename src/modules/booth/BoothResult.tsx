@@ -126,31 +126,35 @@ export default function BoothResult() {
     setStickers((prev) => [...prev, createSticker(emoji, 0.3 + Math.random() * 0.4, 0.2 + Math.random() * 0.6)]);
   }
 
-  function onItemPointerDown(e: React.PointerEvent, itemId: string, x: number, y: number) {
+  function onItemPointerDown(e: React.PointerEvent, itemId: string, origX: number, origY: number) {
     e.preventDefault();
     e.stopPropagation();
-    stripWrapperRef.current?.setPointerCapture(e.pointerId);
-    dragState.current = { id: itemId, startX: e.clientX, startY: e.clientY, origX: x, origY: y };
-  }
-
-  function onWrapperPointerMove(e: React.PointerEvent) {
-    const d = dragState.current;
-    if (!d || !stripWrapperRef.current) return;
-    const { width, height } = stripWrapperRef.current.getBoundingClientRect();
-    const dx = (e.clientX - d.startX) / width;
-    const dy = (e.clientY - d.startY) / height;
+    const wrapper = stripWrapperRef.current;
+    if (!wrapper) return;
+    const { width, height } = wrapper.getBoundingClientRect();
+    const startX = e.clientX;
+    const startY = e.clientY;
     const clamp = (v: number) => Math.max(0, Math.min(1, v));
-    setStickers((prev) => prev.map((s) => s.id === d.id ? { ...s, x: clamp(d.origX + dx), y: clamp(d.origY + dy) } : s));
-    setTextItems((prev) => prev.map((t) => t.id === d.id ? { ...t, x: clamp(d.origX + dx), y: clamp(d.origY + dy) } : t));
-  }
 
-  function onWrapperPointerUp() {
-    if (dragState.current) {
-      dragState.current = null;
-      // Re-render canvas with updated positions
+    function onMove(ev: PointerEvent) {
+      const nx = clamp(origX + (ev.clientX - startX) / width);
+      const ny = clamp(origY + (ev.clientY - startY) / height);
+      setStickers(prev => prev.map(s => s.id === itemId ? { ...s, x: nx, y: ny } : s));
+      setTextItems(prev => prev.map(t => t.id === itemId ? { ...t, x: nx, y: ny } : t));
+    }
+
+    function onUp() {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
       setTimeout(() => renderStrip(photos, config), 30);
     }
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
   }
+
+  function onWrapperPointerMove(_e: React.PointerEvent) {}
+  function onWrapperPointerUp() {}
 
   async function handleDownload(format: "png" | "jpg" | "stories") {
     await exportStrip(format, config);
