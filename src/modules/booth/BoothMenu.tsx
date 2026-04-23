@@ -21,7 +21,7 @@ export default function BoothMenu() {
   const filter = CAMERA_FILTERS.find((f) => f.id === filterId) ?? CAMERA_FILTERS[0];
   const theme  = STRIP_THEMES.find((t) => t.id === themeId)    ?? STRIP_THEMES[0];
 
-  function handleStart() {
+  async function handleStart() {
     const params = new URLSearchParams({
       layout: layoutId,
       filter: filterId,
@@ -29,9 +29,22 @@ export default function BoothMenu() {
       borderWidth: String(borderWidth),
     });
     const tpl = PHOTO_TEMPLATES.find(t => t.id === templateId);
-    if (templateId === "custom" && customTpl) sessionStorage.setItem("vpb_template", customTpl);
-    else if (tpl?.url) sessionStorage.setItem("vpb_template", tpl.url);
-    else sessionStorage.removeItem("vpb_template");
+    if (templateId === "custom" && customTpl) {
+      sessionStorage.setItem("vpb_template", customTpl);
+    } else if (tpl?.url) {
+      try {
+        const res = await fetch(tpl.url);
+        const blob = await res.blob();
+        const b64 = await new Promise<string>((resolve) => {
+          const r = new FileReader();
+          r.onload = () => resolve(r.result as string);
+          r.readAsDataURL(blob);
+        });
+        sessionStorage.setItem("vpb_template", b64);
+      } catch { sessionStorage.removeItem("vpb_template"); }
+    } else {
+      sessionStorage.removeItem("vpb_template");
+    }
     router.push("/booth/" + mode + "?" + params.toString());
   }
 
