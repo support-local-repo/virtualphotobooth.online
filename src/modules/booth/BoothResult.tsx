@@ -223,7 +223,7 @@ export default function BoothResult() {
           <div
             ref={stripWrapperRef}
             className="relative"
-            style={{ maxWidth: 280, width: "100%" }}
+            style={{ maxWidth: 280, width: "100%", position: "relative", overflow: "hidden" }}
             onPointerMove={onWrapperPointerMove}
             onPointerUp={onWrapperPointerUp}
             onPointerLeave={onWrapperPointerUp}
@@ -242,7 +242,7 @@ export default function BoothResult() {
                   transform: "translate(-50%, -50%)", fontSize: "28px",
                   cursor: "grab", userSelect: "none", touchAction: "none",
                   lineHeight: 1, filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.25))",
-                  zIndex: 10, pointerEvents: "auto",
+                  zIndex: 20, pointerEvents: "auto",
                 }}>
                 {sticker.emoji}
               </div>
@@ -284,9 +284,19 @@ export default function BoothResult() {
             <div className="w-full max-w-[280px] flex items-center gap-2">
               <span className="font-mono text-xs" style={{ color: "#b08898" }}>Scale</span>
               <input type="range" min="0.5" max="2" step="0.05" value={frameScale}
-                onChange={(e) => { const v = Number(e.target.value); setFrameScale(v); sessionStorage.setItem("vpb_frame_scale", String(v)); }}
+                onChange={(e) => {
+                const v = Number(e.target.value);
+                setFrameScale(v);
+                sessionStorage.setItem("vpb_frame_scale", String(v));
+                setTimeout(() => renderStrip(photos, config), 50);
+              }}
                 className="flex-1" />
-              <button onClick={() => { setFrameScale(1); setFramePos({ x: 0, y: 0 }); sessionStorage.setItem("vpb_frame_scale", "1"); }}
+              <button onClick={() => {
+  setFrameScale(1);
+  setFramePos({ x: 0, y: 0 });
+  sessionStorage.setItem("vpb_frame_scale", "1");
+  setTimeout(() => renderStrip(photos, config), 50);
+}}
                 className="font-mono text-xs" style={{ color: "#b08898" }}>Reset</button>
             </div>
           )}
