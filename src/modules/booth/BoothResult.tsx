@@ -268,7 +268,7 @@ export default function BoothResult() {
                   top:         `${item.y * 100}%`,
                   transform:   "translate(-50%, -50%)",
                   fontFamily:  item.font,
-                  fontSize:    "18px",
+                  fontSize:    (item.size ?? 18) + "px",
                   color:       item.color,
                   cursor:      "grab",
                   userSelect:  "none",
