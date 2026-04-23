@@ -144,7 +144,13 @@ export default function BoothResult() {
     setTextItems((prev) => prev.map((t) => t.id === d.id ? { ...t, x: clamp(d.origX + dx), y: clamp(d.origY + dy) } : t));
   }
 
-  function onWrapperPointerUp() { dragState.current = null; }
+  function onWrapperPointerUp() {
+    if (dragState.current) {
+      dragState.current = null;
+      // Re-render canvas with updated positions
+      setTimeout(() => renderStrip(photos, config), 30);
+    }
+  }
 
   async function handleDownload(format: "png" | "jpg" | "stories") {
     await exportStrip(format, config);
@@ -386,7 +392,11 @@ export default function BoothResult() {
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs" style={{ color: "#b08898" }}>Size</span>
                 <input type="range" min="10" max="60" step="1" value={textSize}
-                  onChange={(e) => setTextSize(Number(e.target.value))}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    setTextSize(v);
+                    setTextItems(prev => prev.map(t => ({ ...t, size: v })));
+                  }}
                   className="flex-1" />
                 <span className="font-mono text-xs" style={{ color: "#b08898" }}>{textSize}px</span>
               </div>
