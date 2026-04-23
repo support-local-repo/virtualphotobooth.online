@@ -108,6 +108,10 @@ export default function BoothResult() {
     if (ready && photos.length > 0) renderStrip(photos, config);
   }, [ready, photos, stickers, showDate]);
 
+  useEffect(() => {
+    sessionStorage.setItem("vpb_text_items", JSON.stringify(textItems));
+  }, [textItems]);
+
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(null), 3000);
