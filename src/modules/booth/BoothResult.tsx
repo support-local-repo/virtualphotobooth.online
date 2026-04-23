@@ -234,10 +234,11 @@ export default function BoothResult() {
           <div
             ref={stripWrapperRef}
             className="relative"
-            style={{ maxWidth: 280, width: "100%", position: "relative", overflow: "hidden" }}
+            style={{ maxWidth: 280, width: "100%", position: "relative", overflow: "hidden", touchAction: "none" }}
             onPointerMove={onWrapperPointerMove}
             onPointerUp={onWrapperPointerUp}
             onPointerLeave={onWrapperPointerUp}
+            onPointerCancel={onWrapperPointerUp}
           >
             <motion.canvas ref={canvasRef}
               className="rounded-strip shadow-strip"
