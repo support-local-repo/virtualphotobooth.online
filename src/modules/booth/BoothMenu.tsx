@@ -138,7 +138,7 @@ export default function BoothMenu() {
               {customTpl && (
                 <div className="relative mt-2">
                   <img src={customTpl} alt="custom template preview" className="rounded-xl w-full object-cover" style={{ maxHeight: 200 }} />
-                  <p className="font-mono text-xs mt-1" style={{ color: "#b08898" }}>This image will overlay your photos as a frame</p>
+                  <p className="font-mono text-xs mt-1" style={{ color: "#b08898" }}>This image will appear as the background behind your photos</p>
                 </div>
               )}
             </div>
