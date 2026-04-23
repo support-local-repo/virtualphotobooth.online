@@ -301,8 +301,9 @@ export default function BoothResult() {
                   onPointerUp={() => { frameDragRef.current = null; }}
                   style={{
                     position: "absolute",
-                    left: framePos.x, top: framePos.y,
-                    width: `${100 * frameScale}%`,
+                    left:   `calc(50% + ${framePos.x}px - ${frameScale * 50}%)`,
+                    top:    `calc(50% + ${framePos.y}px - ${frameScale * 50}%)`,
+                    width:  `${100 * frameScale}%`,
                     height: `${100 * frameScale}%`,
                     objectFit: "cover",
                     cursor: "grab",
