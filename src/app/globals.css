@@ -217,10 +217,10 @@
   100% { opacity: 0; }
 }
 
-/* ── Cute custom cursor ── */
+/* ── Custom cursor ── */
 body {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ctext y='28' font-size='28'%3E🌸%3C/text%3E%3C/svg%3E") 4 4, auto;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpolygon points='4,2 4,26 10,20 14,30 18,28 14,18 22,18' fill='%232d1a26' stroke='%232d1a26' stroke-width='1'/%3E%3Cpolygon points='5,4 5,22 10,17 13,26 16,25 13,16 20,16' fill='%23e8399a'/%3E%3Cline x1='7' y1='8' x2='14' y2='15' stroke='white' stroke-width='2' stroke-opacity='0.7'/%3E%3Cline x1='7' y1='12' x2='16' y2='17' stroke='%23a855f7' stroke-width='2' stroke-opacity='0.8'/%3E%3C/svg%3E") 4 2, auto;
 }
 button, a, [role='button'], select, input, textarea {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ctext y='28' font-size='28'%3E✨%3C/text%3E%3C/svg%3E") 4 4, pointer;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpolygon points='4,2 4,26 10,20 14,30 18,28 14,18 22,18' fill='%232d1a26' stroke='%232d1a26' stroke-width='1'/%3E%3Cpolygon points='5,4 5,22 10,17 13,26 16,25 13,16 20,16' fill='%23a855f7'/%3E%3Cline x1='7' y1='8' x2='14' y2='15' stroke='white' stroke-width='2' stroke-opacity='0.7'/%3E%3Cline x1='7' y1='12' x2='16' y2='17' stroke='%234ecdc4' stroke-width='2' stroke-opacity='0.8'/%3E%3C/svg%3E") 4 2, pointer;
 }
