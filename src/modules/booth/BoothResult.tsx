@@ -226,7 +226,7 @@ export default function BoothResult() {
           >
             <motion.canvas ref={canvasRef}
               className="rounded-strip shadow-strip"
-              style={{ width: "100%", height: "auto", display: "block" }}
+              style={{ width: "100%", height: "auto", display: "block", position: "relative", zIndex: 1 }}
               initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} />
 
@@ -271,12 +271,12 @@ export default function BoothResult() {
               </div>
             ))}
 
-            {/* Draggable custom frame overlay */}
+            {/* Draggable custom frame — rendered BEFORE canvas so it sits behind photos */}
             {frameSrc && (
               <div
                 style={{
                   position: "absolute", inset: 0, overflow: "hidden",
-                  pointerEvents: "none",
+                  pointerEvents: "none", zIndex: 0,
                 }}
               >
                 <img
