@@ -58,6 +58,7 @@ export default function BoothResult() {
   const [textInput,      setTextInput]      = useState("");
   const [textFont,       setTextFont]       = useState("Dancing Script");
   const [textColor,      setTextColor]      = useState("#e8399a");
+  const [textSize,       setTextSize]       = useState(18);
   const [ready,         setReady]         = useState(false);
   const [loopModal,     setLoopModal]     = useState(false);
   const [frameScale,    setFrameScale]    = useState(1);
