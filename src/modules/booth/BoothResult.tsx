@@ -27,7 +27,7 @@ const FONTS: [string, string][] = [
 
 const FONT_IMPORT = "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Pacifico&family=Lobster&family=Satisfy&family=Permanent+Marker&family=Righteous&family=Bebas+Neue&family=Abril+Fatface&family=Caveat:wght@600&family=Covered+By+Your+Grace&family=Rock+Salt&family=Special+Elite&display=swap";
 
-type TextItem = { id: string; text: string; font: string; color: string; x: number; y: number };
+type TextItem = { id: string; text: string; font: string; color: string; x: number; y: number; size: number; };
 
 export default function BoothResult() {
   const router  = useRouter();
@@ -94,7 +94,7 @@ export default function BoothResult() {
 
   function addTextItem() {
     if (!textInput.trim()) return;
-    setTextItems((prev) => [...prev, { id: crypto.randomUUID(), text: textInput.trim(), font: textFont, color: textColor, x: 0.5, y: 0.5 }]);
+    setTextItems((prev) => [...prev, { id: crypto.randomUUID(), text: textInput.trim(), font: textFont, color: textColor, x: 0.5, y: 0.5, size: textSize }]);
     setTextInput("");
   }
 
@@ -387,6 +387,13 @@ export default function BoothResult() {
                   <option key={val} value={val} style={{ fontFamily: val }}>{label}</option>
                 ))}
               </select>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs" style={{ color: "#b08898" }}>Size</span>
+                <input type="range" min="10" max="60" step="1" value={textSize}
+                  onChange={(e) => setTextSize(Number(e.target.value))}
+                  className="flex-1" />
+                <span className="font-mono text-xs" style={{ color: "#b08898" }}>{textSize}px</span>
+              </div>
               <button onClick={addTextItem} className="vpb-btn-primary justify-center py-2.5 text-sm">
                 Add Text to Strip
               </button>

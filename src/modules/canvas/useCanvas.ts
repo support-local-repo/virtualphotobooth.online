@@ -149,7 +149,8 @@ export function useCanvas(): UseCanvasReturn {
           ctx.textBaseline  = "middle";
           ctx.textAlign     = "center";
           for (const item of textItems) {
-            ctx.font          = `600 ${18 * S}px "${item.font}", Dancing Script, cursive`;
+            const itemSize = ((item as any).size ?? 18) * S;
+            ctx.font          = `600 ${itemSize}px "${item.font}", Dancing Script, cursive`;
             ctx.fillStyle     = item.color;
             ctx.shadowColor   = "rgba(0,0,0,0.50)";
             ctx.shadowBlur    = 4 * S;

@@ -8,6 +8,8 @@ export default function Page() {
     const loopFrame = sessionStorage.getItem("vpb_loop_frame");
     sessionStorage.removeItem("vpb_photos");
     sessionStorage.removeItem("vpb_template");
+    sessionStorage.removeItem("vpb_text_items");
+    sessionStorage.removeItem("vpb_frame_scale");
     if (!loopFrame) sessionStorage.removeItem("vpb_loop_frame");
   }, []);
   return <BoothMenu />;
