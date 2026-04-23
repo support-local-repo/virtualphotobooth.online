@@ -129,7 +129,7 @@ export default function BoothResult() {
   function onItemPointerDown(e: React.PointerEvent, itemId: string, x: number, y: number) {
     e.preventDefault();
     e.stopPropagation();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    stripWrapperRef.current?.setPointerCapture(e.pointerId);
     dragState.current = { id: itemId, startX: e.clientX, startY: e.clientY, origX: x, origY: y };
   }
 
