@@ -59,6 +59,7 @@ export default function BoothResult() {
   const [textFont,       setTextFont]       = useState("Dancing Script");
   const [textColor,      setTextColor]      = useState("#e8399a");
   const [ready,         setReady]         = useState(false);
+  const [loopModal,     setLoopModal]     = useState(false);
 
   const stripWrapperRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
@@ -397,6 +398,46 @@ export default function BoothResult() {
                 ))}
               </div>
               <button onClick={() => setPrintModal(false)} className="w-full text-center font-mono text-xs py-3 mt-2" style={{ color: "#b08898" }}>Cancel</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Loop modal */}
+      <AnimatePresence>
+        {loopModal && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(45,26,38,0.60)" }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div className="vpb-glass p-8 w-full max-w-sm rounded-card shadow-modal text-center"
+              initial={{ scale: 0.92, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 16 }}>
+              <p className="text-4xl mb-3">📸</p>
+              <h3 className="font-display text-xl font-bold mb-2" style={{ color: "#2d1a26" }}>Capture more?</h3>
+              <p className="font-body text-sm mb-6" style={{ color: "#7a5068" }}>
+                Use the same frame for your next photo session?
+              </p>
+              <div className="flex flex-col gap-3">
+                <button onClick={() => {
+                  setLoopModal(false);
+                  const params = new URLSearchParams(window.location.search);
+                  router.push("/booth/camera?" + params.toString());
+                }} className="vpb-btn-primary justify-center py-3 text-sm">
+                  📸 Camera — same frame
+                </button>
+                <button onClick={() => {
+                  setLoopModal(false);
+                  const params = new URLSearchParams(window.location.search);
+                  router.push("/booth/upload?" + params.toString());
+                }} className="vpb-btn-secondary justify-center py-3 text-sm">
+                  🖼️ Upload — same frame
+                </button>
+                <button onClick={() => {
+                  sessionStorage.clear();
+                  router.push("/booth");
+                }} className="font-mono text-xs py-2" style={{ color: "#b08898" }}>
+                  Start over — clear everything
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

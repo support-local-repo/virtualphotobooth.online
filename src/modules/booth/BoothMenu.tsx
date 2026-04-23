@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/core/transitions";
@@ -17,6 +17,12 @@ export default function BoothMenu() {
   const [templateId,  setTemplateId]  = useState("none");
   const [customTpl,   setCustomTpl]   = useState<string | null>(null);
 
+  // Restore frame selection if returning from loop
+  useEffect(() => {
+    const loopFrame = sessionStorage.getItem("vpb_loop_frame");
+    if (loopFrame) setTemplateId(loopFrame);
+  }, []);
+
   const layout = LAYOUT_OPTIONS.find((l) => l.id === layoutId) ?? LAYOUT_OPTIONS[3];
   const filter = CAMERA_FILTERS.find((f) => f.id === filterId) ?? CAMERA_FILTERS[0];
   const theme  = STRIP_THEMES.find((t) => t.id === themeId)    ?? STRIP_THEMES[0];
@@ -29,6 +35,10 @@ export default function BoothMenu() {
       borderWidth: String(borderWidth),
     });
     const tpl = PHOTO_TEMPLATES.find(t => t.id === templateId);
+    // Persist frame for loop mode
+    if (templateId !== "none") sessionStorage.setItem("vpb_loop_frame", templateId);
+    else sessionStorage.removeItem("vpb_loop_frame");
+
     if (templateId === "custom" && customTpl) {
       sessionStorage.setItem("vpb_template", customTpl);
     } else if (tpl?.url) {
