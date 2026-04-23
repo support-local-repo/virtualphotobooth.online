@@ -246,7 +246,7 @@ export default function BoothResult() {
           >
             <motion.canvas ref={canvasRef}
               className="rounded-strip shadow-strip"
-              style={{ width: "100%", height: "auto", display: "block", position: "relative", zIndex: 1 }}
+              style={{ width: "100%", height: "auto", display: "block", position: "relative", zIndex: 1, pointerEvents: "none" }}
               initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} />
 
@@ -279,6 +279,8 @@ export default function BoothResult() {
                   cursor:      "grab",
                   userSelect:  "none",
                   touchAction: "none",
+                  pointerEvents: "auto",
+                  zIndex: 30,
                   whiteSpace:  "nowrap",
                   textShadow:  "0 1px 3px rgba(0,0,0,0.35)",
                   fontWeight:  600,
