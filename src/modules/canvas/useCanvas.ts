@@ -101,7 +101,7 @@ export function useCanvas(): UseCanvasReturn {
 
     if (config.showDate) {
       // Force visible color regardless of theme
-      drawDateOverlay(ctx, canvas.width, canvas.height, "#2d1a26", S);
+      drawDateOverlay(ctx, canvas.width, canvas.height, "#ffffff", S);
     }
 
     if (config.stickers.length > 0) {

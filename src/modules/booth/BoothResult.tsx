@@ -109,7 +109,11 @@ export default function BoothResult() {
   }, [ready, photos, stickers, textItems, showDate]);
 
   useEffect(() => {
+    if (!ready || photos.length === 0) return;
     sessionStorage.setItem("vpb_text_items", JSON.stringify(textItems));
+    // Small delay to ensure sessionStorage is written before canvas reads it
+    const t = setTimeout(() => renderStrip(photos, config), 80);
+    return () => clearTimeout(t);
   }, [textItems]);
 
   function showToast(msg: string) {
