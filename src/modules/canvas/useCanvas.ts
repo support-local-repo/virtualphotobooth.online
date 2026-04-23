@@ -144,6 +144,34 @@ export function useCanvas(): UseCanvasReturn {
   ): Promise<void> => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // Bake text items on top before export
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      const S = 2;
+      const rawText = sessionStorage.getItem("vpb_text_items");
+      if (rawText) {
+        try {
+          const items: Array<{ text: string; font: string; color: string; x: number; y: number; size?: number }> = JSON.parse(rawText);
+          if (items.length > 0) {
+            await Promise.all(items.map(t => document.fonts.load(`600 ${(t.size??18)*S}px "${t.font}"`).catch(()=>null)));
+            ctx.save();
+            ctx.textBaseline = "middle";
+            ctx.textAlign    = "center";
+            for (const item of items) {
+              ctx.font        = `600 ${(item.size??18)*S}px "${item.font}", cursive`;
+              ctx.fillStyle   = item.color;
+              ctx.shadowColor = "rgba(0,0,0,0.5)";
+              ctx.shadowBlur  = 4 * S;
+              ctx.fillText(item.text, item.x * canvas.width, item.y * canvas.height);
+            }
+            ctx.shadowBlur = 0;
+            ctx.restore();
+          }
+        } catch {}
+      }
+    }
+
     if (format === "stories") { await exportAsStories(canvas, config); return; }
     const mimeType = format === "jpg" ? "image/jpeg" : "image/png";
     const quality  = format === "jpg" ? 0.92 : undefined;
