@@ -40,6 +40,7 @@ export default function BoothMenu() {
     else sessionStorage.removeItem("vpb_loop_frame");
 
     if (templateId === "custom" && customTpl) {
+      // customTpl is already base64 from FileReader
       sessionStorage.setItem("vpb_template", customTpl);
     } else if (tpl?.url) {
       try {
@@ -122,9 +123,9 @@ export default function BoothMenu() {
             ))}
           </div>
           {templateId === "custom" && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mt-2">
               <label className="vpb-btn-secondary justify-center py-2.5 text-xs cursor-pointer flex items-center gap-2">
-                Upload Template PNG
+                ⬆️ Upload your frame PNG
                 <input type="file" accept="image/png,image/jpeg" className="hidden" onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
@@ -133,12 +134,24 @@ export default function BoothMenu() {
                   reader.readAsDataURL(file);
                 }} />
               </label>
-              {customTpl && <img src={customTpl} alt="template preview" className="rounded-xl w-full object-cover mt-2" style={{ maxHeight: 140 }} />}
+              {customTpl && (
+                <div className="relative mt-2">
+                  <img src={customTpl} alt="custom template preview" className="rounded-xl w-full object-cover" style={{ maxHeight: 200 }} />
+                  <p className="font-mono text-xs mt-1" style={{ color: "#b08898" }}>This image will overlay your photos as a frame</p>
+                </div>
+              )}
             </div>
           )}
           {templateId !== "none" && templateId !== "custom" && (
-            <img src={PHOTO_TEMPLATES.find(t => t.id === templateId)?.url ?? ""} alt="template preview"
-              className="rounded-xl w-full object-cover mt-2" style={{ maxHeight: 140 }} />
+            <div className="mt-2">
+              <img
+                src={PHOTO_TEMPLATES.find(t => t.id === templateId)?.url ?? ""}
+                alt="template preview"
+                className="rounded-xl w-full object-cover"
+                style={{ maxHeight: 200 }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+              />
+            </div>
           )}
         </motion.div>
 

@@ -89,13 +89,18 @@ export function useCanvas(): UseCanvasReturn {
       drawWatermark(ctx, canvas.width, canvas.height, S);
     }
 
-    // 9. Template overlay
+    // 9. Template overlay — drawn last so it sits on top of photos
     const tplSrc = sessionStorage.getItem("vpb_template");
     if (tplSrc) {
       await new Promise<void>((resolve) => {
         const tplImg = new Image();
-        tplImg.onload = () => { ctx.drawImage(tplImg, 0, 0, canvas.width, canvas.height); resolve(); };
+        tplImg.crossOrigin = "anonymous";
+        tplImg.onload = () => {
+          ctx.drawImage(tplImg, 0, 0, canvas.width, canvas.height);
+          resolve();
+        };
         tplImg.onerror = () => resolve();
+        // base64 data URIs don't need crossOrigin but set src after crossOrigin
         tplImg.src = tplSrc;
       });
     }
