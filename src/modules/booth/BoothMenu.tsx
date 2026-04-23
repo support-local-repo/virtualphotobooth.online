@@ -40,8 +40,8 @@ export default function BoothMenu() {
     else sessionStorage.removeItem("vpb_loop_frame");
 
     if (templateId === "custom" && customTpl) {
-      // customTpl is already base64 from FileReader
       sessionStorage.setItem("vpb_template", customTpl);
+      sessionStorage.setItem("vpb_template_type", "background");
     } else if (tpl?.url) {
       try {
         const res = await fetch(tpl.url);
@@ -52,6 +52,7 @@ export default function BoothMenu() {
           r.readAsDataURL(blob);
         });
         sessionStorage.setItem("vpb_template", b64);
+        sessionStorage.setItem("vpb_template_type", "overlay");
       } catch { sessionStorage.removeItem("vpb_template"); }
     } else {
       sessionStorage.removeItem("vpb_template");
