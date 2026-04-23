@@ -46,9 +46,17 @@ export function useCanvas(): UseCanvasReturn {
 
     // Draw custom background frame FIRST (behind photos)
     if (_tplSrc && _tplType === "background") {
+      const fScale = parseFloat(sessionStorage.getItem("vpb_frame_scale") ?? "1");
       await new Promise<void>((resolve) => {
         const bg = new Image();
-        bg.onload = () => { ctx.drawImage(bg, 0, 0, canvas.width, canvas.height); resolve(); };
+        bg.onload = () => {
+          const fw = canvas.width  * fScale;
+          const fh = canvas.height * fScale;
+          const fx = (canvas.width  - fw) / 2;
+          const fy = (canvas.height - fh) / 2;
+          ctx.drawImage(bg, fx, fy, fw, fh);
+          resolve();
+        };
         bg.onerror = () => resolve();
         bg.src = _tplSrc;
       });

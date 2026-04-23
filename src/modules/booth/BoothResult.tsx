@@ -317,9 +317,9 @@ export default function BoothResult() {
             <div className="w-full max-w-[280px] flex items-center gap-2">
               <span className="font-mono text-xs" style={{ color: "#b08898" }}>Scale</span>
               <input type="range" min="0.5" max="2" step="0.05" value={frameScale}
-                onChange={(e) => setFrameScale(Number(e.target.value))}
+                onChange={(e) => { const v = Number(e.target.value); setFrameScale(v); sessionStorage.setItem("vpb_frame_scale", String(v)); }}
                 className="flex-1" />
-              <button onClick={() => { setFrameScale(1); setFramePos({ x: 0, y: 0 }); }}
+              <button onClick={() => { setFrameScale(1); setFramePos({ x: 0, y: 0 }); sessionStorage.setItem("vpb_frame_scale", "1"); }}
                 className="font-mono text-xs" style={{ color: "#b08898" }}>Reset</button>
             </div>
           )}
