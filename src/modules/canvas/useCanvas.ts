@@ -134,6 +134,35 @@ export function useCanvas(): UseCanvasReturn {
         tplImg.src = tplSrcOv;
       });
     }
+
+    // 10. Text items — drawn LAST so they appear on top of everything including frame
+    const rawTextItems = sessionStorage.getItem("vpb_text_items");
+    if (rawTextItems) {
+      try {
+        const textItems: Array<{ text: string; font: string; color: string; x: number; y: number }> = JSON.parse(rawTextItems);
+        if (textItems.length > 0) {
+          await Promise.all(textItems.map(item =>
+            (document as any).fonts.load(`600 ${18 * S}px "${item.font}"`)
+              .catch(() => null)
+          ));
+          ctx.save();
+          ctx.textBaseline  = "middle";
+          ctx.textAlign     = "center";
+          for (const item of textItems) {
+            ctx.font          = `600 ${18 * S}px "${item.font}", Dancing Script, cursive`;
+            ctx.fillStyle     = item.color;
+            ctx.shadowColor   = "rgba(0,0,0,0.50)";
+            ctx.shadowBlur    = 4 * S;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.fillText(item.text, item.x * canvas.width, item.y * canvas.height);
+          }
+          ctx.shadowBlur    = 0;
+          ctx.shadowOffsetX = 0;
+          ctx.restore();
+        }
+      } catch (e) { console.error("Text draw error:", e); }
+    }
   }, []);
 
   const exportStrip = useCallback(async (
