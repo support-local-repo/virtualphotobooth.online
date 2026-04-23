@@ -88,6 +88,17 @@ export function useCanvas(): UseCanvasReturn {
     if (config.showWatermark) {
       drawWatermark(ctx, canvas.width, canvas.height, S);
     }
+
+    // 9. Template overlay
+    const tplSrc = sessionStorage.getItem("vpb_template");
+    if (tplSrc) {
+      await new Promise<void>((resolve) => {
+        const tplImg = new Image();
+        tplImg.onload = () => { ctx.drawImage(tplImg, 0, 0, canvas.width, canvas.height); resolve(); };
+        tplImg.onerror = () => resolve();
+        tplImg.src = tplSrc;
+      });
+    }
   }, []);
 
   const exportStrip = useCallback(async (
