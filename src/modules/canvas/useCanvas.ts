@@ -145,7 +145,9 @@ export function useCanvas(): UseCanvasReturn {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Bake text items on top before export
+    if (format === "stories") { await exportAsStories(canvas, config); return; }
+
+    // Bake text items LAST — after all canvas rendering is complete
     const ctx = canvas.getContext("2d");
     if (ctx) {
       const S = 2;
@@ -172,7 +174,6 @@ export function useCanvas(): UseCanvasReturn {
       }
     }
 
-    if (format === "stories") { await exportAsStories(canvas, config); return; }
     const mimeType = format === "jpg" ? "image/jpeg" : "image/png";
     const quality  = format === "jpg" ? 0.92 : undefined;
     triggerDownload(canvas.toDataURL(mimeType, quality), generateStripFilename(format));
