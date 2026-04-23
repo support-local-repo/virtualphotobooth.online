@@ -126,12 +126,22 @@ export default function BoothMenu() {
           {templateId === "custom" && (
             <div className="flex flex-col gap-2 mt-2">
               <label className="vpb-btn-secondary justify-center py-2.5 text-xs cursor-pointer flex items-center gap-2">
-                ⬆️ Upload your frame PNG
-                <input type="file" accept="image/png,image/jpeg" className="hidden" onChange={(e) => {
+                ⬆️ Upload frame (PNG or JPG)
+                <input type="file" accept="image/png,image/jpeg,image/jpg" className="hidden" onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
                   const reader = new FileReader();
-                  reader.onload = (ev) => setCustomTpl(ev.target?.result as string);
+                  reader.onload = (ev) => {
+                    const src = ev.target?.result as string;
+                    const img = new window.Image();
+                    img.onload = () => {
+                      const cvs = document.createElement("canvas");
+                      cvs.width = img.naturalWidth; cvs.height = img.naturalHeight;
+                      cvs.getContext("2d")!.drawImage(img, 0, 0);
+                      setCustomTpl(cvs.toDataURL("image/png"));
+                    };
+                    img.src = src;
+                  };
                   reader.readAsDataURL(file);
                 }} />
               </label>

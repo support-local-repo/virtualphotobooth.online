@@ -8,6 +8,11 @@ export type PhotoTemplate = {
 
 export const PHOTO_TEMPLATES: PhotoTemplate[] = [
   { id: "none",             label: "None",           category: "plain",     icon: "✕",  url: null },
+  { id: "frame-polaroid",   label: "Polaroid",      category: "frame",     icon: "🖼️", url: "/templates/frame-polaroid.png" },
+  { id: "frame-arch",       label: "Arch",          category: "frame",     icon: "🌸", url: "/templates/frame-arch.png" },
+  { id: "frame-scallop",    label: "Scallop",       category: "frame",     icon: "💙", url: "/templates/frame-scallop.png" },
+  { id: "frame-ticket",     label: "Ticket",        category: "frame",     icon: "🎫", url: "/templates/frame-ticket.png" },
+  { id: "frame-lace",       label: "Lace",          category: "frame",     icon: "🤍", url: "/templates/frame-lace.png" },
   { id: "frame-rosegold",   label: "Rose Gold",      category: "frame",     icon: "🌹", url: "/templates/frame-rosegold.png" },
   { id: "frame-neon",       label: "Neon Party",     category: "frame",     icon: "🎉", url: "/templates/frame-neon.png" },
   { id: "frame-whitegold",  label: "White Gold",     category: "frame",     icon: "✨", url: "/templates/frame-whitegold.png" },

@@ -60,6 +60,10 @@ export default function BoothResult() {
   const [textColor,      setTextColor]      = useState("#e8399a");
   const [ready,         setReady]         = useState(false);
   const [loopModal,     setLoopModal]     = useState(false);
+  const [frameScale,    setFrameScale]    = useState(1);
+  const [framePos,      setFramePos]      = useState({ x: 0, y: 0 });
+  const [frameSrc,      setFrameSrc]      = useState<string | null>(null);
+  const frameDragRef    = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
 
   const stripWrapperRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
@@ -73,6 +77,12 @@ export default function BoothResult() {
         setReady(true);
       }
     } catch { setReady(true); }
+  }, []);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("vpb_template_type") === "background") {
+      setFrameSrc(sessionStorage.getItem("vpb_template"));
+    }
   }, []);
 
   useEffect(() => {
@@ -260,7 +270,59 @@ export default function BoothResult() {
                 {item.text}
               </div>
             ))}
+
+            {/* Draggable custom frame overlay */}
+            {frameSrc && (
+              <div
+                style={{
+                  position: "absolute", inset: 0, overflow: "hidden",
+                  pointerEvents: "none",
+                }}
+              >
+                <img
+                  src={frameSrc}
+                  alt="custom frame"
+                  draggable={false}
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+                    frameDragRef.current = { startX: e.clientX, startY: e.clientY, origX: framePos.x, origY: framePos.y };
+                  }}
+                  onPointerMove={(e) => {
+                    if (!frameDragRef.current) return;
+                    const dx = e.clientX - frameDragRef.current.startX;
+                    const dy = e.clientY - frameDragRef.current.startY;
+                    setFramePos({ x: frameDragRef.current.origX + dx, y: frameDragRef.current.origY + dy });
+                  }}
+                  onPointerUp={() => { frameDragRef.current = null; }}
+                  style={{
+                    position: "absolute",
+                    left: framePos.x, top: framePos.y,
+                    width: `${100 * frameScale}%`,
+                    height: `${100 * frameScale}%`,
+                    objectFit: "cover",
+                    cursor: "grab",
+                    pointerEvents: "auto",
+                    userSelect: "none",
+                    touchAction: "none",
+                    opacity: 0.92,
+                  }}
+                />
+              </div>
+            )}
           </div>
+
+          {/* Frame scale slider */}
+          {frameSrc && (
+            <div className="w-full max-w-[280px] flex items-center gap-2">
+              <span className="font-mono text-xs" style={{ color: "#b08898" }}>Scale</span>
+              <input type="range" min="0.5" max="2" step="0.05" value={frameScale}
+                onChange={(e) => setFrameScale(Number(e.target.value))}
+                className="flex-1" />
+              <button onClick={() => { setFrameScale(1); setFramePos({ x: 0, y: 0 }); }}
+                className="font-mono text-xs" style={{ color: "#b08898" }}>Reset</button>
+            </div>
+          )}
 
           <div className="flex flex-col gap-2 w-full max-w-[280px]">
             <button onClick={() => handleDownload("png")} className="vpb-btn-primary justify-center py-3 text-sm">Download PNG</button>
