@@ -73,7 +73,8 @@ export const LAYOUT_OPTIONS: LayoutOption[] = [
   { id: "3",          label: "Trio",      count: 3, cols: 1, rows: 3, icon: "▭▭▭" },
   { id: "4",          label: "Classic",   count: 4, cols: 1, rows: 4, icon: "▭▭▭▭" },
   { id: "6",          label: "Grid",      count: 6, cols: 2, rows: 3, icon: "⊞" },
-  { id: "wide",       label: "Wide",      count: 3, cols: 3, rows: 1, icon: "▬" },
+  { id: "wide",       label: "Wide 3",    count: 3, cols: 3, rows: 1, icon: "▬" },
+  { id: "wide2",      label: "Wide 2",    count: 2, cols: 2, rows: 1, icon: "▬▬" },
 ];
 
 // Camera filters

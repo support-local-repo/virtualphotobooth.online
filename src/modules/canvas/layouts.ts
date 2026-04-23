@@ -37,20 +37,21 @@ export function computeStripLayout(
 ): StripDimensions {
   const bw = borderWidth; // alias
 
-  if (layout.id === "wide") {
-    // Horizontal strip: 3 photos side by side
-    const photoW  = Math.floor((STRIP_WIDTH_PX * 1.8 - bw * 4) / 3);
+  if (layout.id === "wide" || layout.id === "wide2") {
+    // Horizontal strip — photos side by side, canvas is WIDE not tall
+    const count   = layout.count; // 2 or 3
+    const totalW  = STRIP_WIDTH_PX * (count === 2 ? 1.6 : 2.2);
+    const photoW  = Math.floor((totalW - bw * (count + 1)) / count);
     const photoH  = Math.floor(photoW * 0.75); // 4:3
-    const totalW  = photoW * 3 + bw * 4;
     const totalH  = photoH + bw * 2;
 
     return {
-      canvasWidth:  totalW,
+      canvasWidth:  Math.floor(totalW),
       canvasHeight: totalH,
       borderWidth:  bw,
-      slots: [0, 1, 2].map((i) => ({
-        x: bw + i * (photoW + bw),
-        y: bw,
+      slots: Array.from({ length: count }, (_, i) => ({
+        x:      bw + i * (photoW + bw),
+        y:      bw,
         width:  photoW,
         height: photoH,
       })),

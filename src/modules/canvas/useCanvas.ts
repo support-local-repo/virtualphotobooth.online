@@ -35,16 +35,41 @@ export function useCanvas(): UseCanvasReturn {
     canvas.width  = dims.canvasWidth  * S;
     canvas.height = dims.canvasHeight * S;
 
-    ctx.fillStyle = config.theme.bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const _tplType = sessionStorage.getItem("vpb_template_type");
+    const _tplSrc  = sessionStorage.getItem("vpb_template");
+
+    // Fill background only when no custom frame
+    if (_tplType !== "background") {
+      ctx.fillStyle = config.theme.bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Draw custom background frame FIRST (behind photos)
+    if (_tplSrc && _tplType === "background") {
+      await new Promise<void>((resolve) => {
+        const bg = new Image();
+        bg.onload = () => { ctx.drawImage(bg, 0, 0, canvas.width, canvas.height); resolve(); };
+        bg.onerror = () => resolve();
+        bg.src = _tplSrc;
+      });
+    }
 
     if (config.layout.id !== "outofframe" && config.borderWidth > 0) {
       ctx.strokeStyle = config.theme.border;
       ctx.lineWidth   = dims.borderWidth * S;
     }
 
+    // When custom background frame is active, inset photos so frame border is visible
+    const frameInset = (_tplType === "background" && _tplSrc) ? Math.round(canvas.width * 0.08) : 0;
+
     for (let i = 0; i < dims.slots.length; i++) {
-      const slot  = scaleRect(dims.slots[i], S);
+      const rawSlot = scaleRect(dims.slots[i], S);
+      const slot = frameInset > 0 ? {
+        x:      rawSlot.x      + frameInset,
+        y:      rawSlot.y      + frameInset,
+        width:  rawSlot.width  - frameInset * 2,
+        height: rawSlot.height - frameInset * 2,
+      } : rawSlot;
       const photo = photos[i];
 
       if (!photo) {
