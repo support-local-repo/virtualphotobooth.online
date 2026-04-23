@@ -32,7 +32,7 @@ export default function BoothMenu() {
       layout: layoutId,
       filter: filterId,
       theme:  themeId,
-      borderWidth: String(borderWidth),
+      borderWidth: templateId !== "none" ? "0" : String(borderWidth),
     });
     const tpl = PHOTO_TEMPLATES.find(t => t.id === templateId);
     // Persist frame for loop mode
@@ -159,7 +159,7 @@ export default function BoothMenu() {
                 src={PHOTO_TEMPLATES.find(t => t.id === templateId)?.url ?? ""}
                 alt="template preview"
                 className="rounded-xl w-full object-cover"
-                style={{ maxHeight: 200 }}
+                style={{ maxHeight: 320 }}
                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
             </div>
@@ -200,8 +200,8 @@ export default function BoothMenu() {
           <p className="font-mono text-xs mt-2" style={{ color: "#b08898" }}>{theme.label}</p>
         </motion.div>
 
-        <motion.div variants={staggerItem} className="vpb-glass p-5">
-          <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: "#b08898" }}>Border Width</p>
+        <motion.div variants={staggerItem} className="vpb-glass p-5" style={{ opacity: templateId !== "none" ? 0.35 : 1, pointerEvents: templateId !== "none" ? "none" : "auto" }}>
+          <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: "#b08898" }}>Border Width {templateId !== "none" && "(disabled with template)"}</p>
           <div className="grid grid-cols-3 gap-3">
             {Object.entries(BORDER_WIDTHS).map(([label, val]) => (
               <button key={label} onClick={() => setBorderWidth(val)}
