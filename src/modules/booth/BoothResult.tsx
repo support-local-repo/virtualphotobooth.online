@@ -106,7 +106,7 @@ export default function BoothResult() {
 
   useEffect(() => {
     if (ready && photos.length > 0) renderStrip(photos, config);
-  }, [ready, photos, stickers, showDate]);
+  }, [ready, photos, stickers, textItems, showDate]);
 
   useEffect(() => {
     sessionStorage.setItem("vpb_text_items", JSON.stringify(textItems));
