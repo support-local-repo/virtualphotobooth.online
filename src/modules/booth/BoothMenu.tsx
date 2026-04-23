@@ -200,8 +200,8 @@ export default function BoothMenu() {
           <p className="font-mono text-xs mt-2" style={{ color: "#b08898" }}>{theme.label}</p>
         </motion.div>
 
-        <motion.div variants={staggerItem} className="vpb-glass p-5" style={{ opacity: templateId !== "none" ? 0.35 : 1, pointerEvents: templateId !== "none" ? "none" : "auto" }}>
-          <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: "#b08898" }}>Border Width {templateId !== "none" && "(disabled with template)"}</p>
+        <motion.div variants={staggerItem} className="vpb-glass p-5" style={{ opacity: templateId !== "none" ? 0.38 : 1, pointerEvents: templateId !== "none" ? "none" : "auto", transition: "opacity 0.3s" }}>
+          <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color: templateId !== "none" ? "#d0b0c0" : "#b08898" }}>Border Width {templateId !== "none" && <span style={{ fontWeight: 400, fontSize: "10px", marginLeft: 6, color: "#c08898" }}>(disabled — template active)</span>}</p>
           <div className="grid grid-cols-3 gap-3">
             {Object.entries(BORDER_WIDTHS).map(([label, val]) => (
               <button key={label} onClick={() => setBorderWidth(val)}
