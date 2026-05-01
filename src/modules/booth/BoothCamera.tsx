@@ -29,7 +29,21 @@ export default function BoothCamera() {
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
   const totalShots = layout.count;
 
-  useEffect(() => { startCamera(); return () => stopCamera(); }, []);
+  useEffect(() => {
+    // Check if camera permission already granted — skip prompt
+    if (navigator.permissions) {
+      navigator.permissions.query({ name: "camera" as PermissionName })
+        .then(result => {
+          if (result.state === "granted" || result.state === "prompt") {
+            startCamera();
+          }
+        })
+        .catch(() => startCamera()); // fallback if permissions API not supported
+    } else {
+      startCamera();
+    }
+    return () => stopCamera();
+  }, []);
 
   const goToResult = useCallback((finalPhotos: CapturedPhoto[]) => {
     sessionStorage.setItem("vpb_photos", JSON.stringify(finalPhotos.map((p) => p.dataUrl)));
@@ -40,70 +54,39 @@ export default function BoothCamera() {
 
   const switchCamera = useCallback(async (mode: "selfie" | "normal" | "0.5x" | "2x") => {
     setCamMode(mode);
-    stopCamera();
 
-    setTimeout(async () => {
-      try {
-        // Enumerate devices to find correct camera by deviceId
-        // This avoids triggering native iOS camera app
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(d => d.kind === "videoinput");
+    // For front/rear switch — restart stream with different facingMode
+    // For 0.5x/2x — CSS zoom simulation on existing stream (avoids iOS native camera trigger)
+    const needsRestart = (mode === "selfie") !== (camMode === "selfie");
 
-        // Front camera = user facing, rear cameras sorted by label
-        const frontCam = videoDevices.find(d =>
-          d.label.toLowerCase().includes("front") ||
-          d.label.toLowerCase().includes("facetime")
-        ) || videoDevices[0];
+    if (needsRestart) {
+      stopCamera();
+      setTimeout(async () => {
+        try {
+          const isFront = mode === "selfie";
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: { facingMode: isFront ? "user" : "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+          });
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            await videoRef.current.play();
+          }
+        } catch (err) { console.error("Camera restart failed:", err); }
+      }, 300);
+    }
 
-        const rearCams = videoDevices.filter(d =>
-          d.label.toLowerCase().includes("back") ||
-          d.label.toLowerCase().includes("rear") ||
-          d.label.toLowerCase().includes("environment")
-        );
-
-        // On iPhone: cameras are ordered wide(0), ultra-wide(1), telephoto(2)
-        const rearMain  = rearCams[0] || videoDevices[1];
-        const rearUltra = rearCams[1] || rearCams[0] || videoDevices[1];
-        const rearTele  = rearCams[2] || rearCams[0] || videoDevices[1];
-
-        let deviceId: string | undefined;
-        let cssTransform = "none";
-
-        if (mode === "selfie") {
-          deviceId     = frontCam?.deviceId;
-          cssTransform = "scaleX(-1)";
-        } else if (mode === "0.5x") {
-          deviceId     = rearUltra?.deviceId;
-          cssTransform = "none";
-        } else if (mode === "2x") {
-          deviceId     = rearTele?.deviceId;
-          cssTransform = "none";
-        } else {
-          deviceId     = rearMain?.deviceId;
-          cssTransform = "none";
-        }
-
-        const constraints: MediaStreamConstraints = {
-          audio: false,
-          video: deviceId
-            ? { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }
-            : { facingMode: mode === "selfie" ? "user" : "environment" },
-        };
-
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
-          videoRef.current.style.transform       = cssTransform;
-          videoRef.current.style.transformOrigin = "center";
-          videoRef.current.style.transition      = "transform 0.3s";
-        }
-      } catch (err) {
-        console.error("Camera switch failed:", err);
-      }
-    }, 300);
-  }, [stopCamera, videoRef]);
+    // Always apply CSS transform for zoom simulation
+    if (videoRef.current) {
+      let transform = "none";
+      if (mode === "selfie") transform = "scaleX(-1)";
+      else if (mode === "0.5x") transform = "scale(0.6)";
+      else if (mode === "2x")   transform = "scale(1.8)";
+      videoRef.current.style.transform       = transform;
+      videoRef.current.style.transformOrigin = "center";
+      videoRef.current.style.transition      = "transform 0.35s ease";
+    }
+  }, [stopCamera, videoRef, camMode]);
 
   const triggerCapture = useCallback(() => {
     const canvas = captureCanvasRef.current;
