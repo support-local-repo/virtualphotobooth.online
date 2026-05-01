@@ -25,7 +25,7 @@ export default function BoothCamera() {
   const [shotIndex,   setShotIndex]   = useState(0);
   const [isCapturing, setIsCapturing] = useState(false);
   const [flash,       setFlash]       = useState(false);
-  const [camMode,     setCamMode]     = useState<"selfie" | "normal" | "wide" | "2x">("selfie");
+  const [camMode,     setCamMode]     = useState<"selfie" | "normal" | "wide" | "2x" | "front-wide" | "front-normal" | "front-2x">("selfie");
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
   const totalShots = layout.count;
 
@@ -194,7 +194,10 @@ export default function BoothCamera() {
                 {filter.label}
               </div>
             )}
-            <button onClick={() => switchCamera(camMode === "selfie" ? "normal" : "selfie")}
+            <button onClick={() => {
+                const isFront = camMode === "selfie";
+                switchCamera(isFront ? "normal" : "selfie");
+              }}
               style={{
                 position: "absolute", top: 12, right: 12,
                 width: 40, height: 40, borderRadius: "50%",
@@ -208,25 +211,28 @@ export default function BoothCamera() {
               🔄
             </button>
 
-            {/* Camera mode switcher */}
+            {/* Camera mode switcher — zoom row + front/rear toggle */}
             <div style={{
               position: "absolute", bottom: 12, left: 0, right: 0,
-              display: "flex", justifyContent: "center", gap: 6, zIndex: 10,
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 6, zIndex: 10,
             }}>
-              {(["wide", "selfie", "normal", "2x"] as const).map((m) => (
-                <button key={m} onClick={() => switchCamera(m)}
-                  style={{
-                    background:     camMode === m ? "rgba(232,57,154,0.85)" : "rgba(0,0,0,0.55)",
-                    border:         "1px solid " + (camMode === m ? "rgba(232,57,154,0.5)" : "rgba(255,255,255,0.2)"),
-                    color:          "#fff", fontFamily: "monospace",
-                    fontSize:       "11px", fontWeight: 600,
-                    padding:        "5px 10px", borderRadius: "99px",
-                    cursor:         "pointer", backdropFilter: "blur(8px)",
-                    minHeight:      "unset", minWidth: "unset", whiteSpace: "nowrap",
-                  }}>
-                  {m === "wide" ? "🌐 Wide" : m === "selfie" ? "🤳 Selfie" : m === "normal" ? "📸 Normal" : "🔍 2x"}
-                </button>
-              ))}
+              {/* Zoom modes */}
+              <div style={{ display: "flex", gap: 6 }}>
+                {(["wide", "normal", "2x"] as const).map((m) => (
+                  <button key={m} onClick={() => switchCamera(m as any)}
+                    style={{
+                      background:     camMode === m ? "rgba(232,57,154,0.85)" : "rgba(0,0,0,0.55)",
+                      border:         "1px solid " + (camMode === m ? "rgba(232,57,154,0.5)" : "rgba(255,255,255,0.2)"),
+                      color:          "#fff", fontFamily: "monospace",
+                      fontSize:       "11px", fontWeight: 600,
+                      padding:        "5px 12px", borderRadius: "99px",
+                      cursor:         "pointer", backdropFilter: "blur(8px)",
+                      minHeight:      "unset", minWidth: "unset",
+                    }}>
+                    {m === "wide" ? "Wide" : m === "normal" ? "Normal" : "2x"}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

@@ -176,6 +176,23 @@ export function useCanvas(): UseCanvasReturn {
 
     const mimeType = format === "jpg" ? "image/jpeg" : "image/png";
     const quality  = format === "jpg" ? 0.92 : undefined;
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    if (isMobile && navigator.canShare) {
+      try {
+        const blob = await new Promise<Blob>((resolve, reject) =>
+          canvas.toBlob((b) => b ? resolve(b) : reject(), mimeType, quality)
+        );
+        const file = new File([blob], generateStripFilename(format), { type: mimeType });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: "My Photo Strip", text: "Made with virtualphotobooth.online" });
+          return;
+        }
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+      }
+    }
+
     triggerDownload(canvas.toDataURL(mimeType, quality), generateStripFilename(format));
   }, []);
 
