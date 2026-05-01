@@ -5,6 +5,10 @@
 // Shared by BoothCamera and BoothUpload
 // ─────────────────────────────────────────
 
+// Module-level stream cache — survives component remounts
+// Avoids repeated getUserMedia calls and iOS permission re-prompts
+let _cachedStream: MediaStream | null = null;
+
 import { useRef, useState, useCallback, useEffect } from "react";
 
 export type CameraState = "idle" | "requesting" | "active" | "error";
@@ -28,8 +32,11 @@ export function useCamera(): UseCameraReturn {
   const [error,      setError]      = useState<string | null>(null);
   const [isMirrored, setIsMirrored] = useState(true); // selfie-mode default
 
-  const stopCamera = useCallback(() => {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
+  const stopCamera = useCallback((clearCache = false) => {
+    if (clearCache) {
+      _cachedStream?.getTracks().forEach((t) => t.stop());
+      _cachedStream = null;
+    }
     streamRef.current = null;
     if (videoRef.current) videoRef.current.srcObject = null;
     setState("idle");
@@ -40,14 +47,19 @@ export function useCamera(): UseCameraReturn {
     setError(null);
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode:  "user",
-          width:  { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      });
+      // Reuse cached stream if still active — avoids iOS permission re-prompt
+      let stream = _cachedStream;
+      if (!stream || !stream.active) {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode:  "user",
+            width:  { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
+        _cachedStream = stream;
+      }
 
       streamRef.current = stream;
 
