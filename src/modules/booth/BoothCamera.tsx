@@ -57,21 +57,22 @@ export default function BoothCamera() {
   const flipCamera = useCallback(async () => {
     const newFront = !isFront;
     setIsFront(newFront);
-    stopCamera();
-    setTimeout(async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: { facingMode: newFront ? "user" : "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
-          applyZoomTransform(camMode, newFront);
-        }
-      } catch {}
-    }, 300);
-  }, [isFront, stopCamera, videoRef, applyZoomTransform, camMode]);
+    try {
+      // Stop only the video tracks — don't call stopCamera() which triggers re-mount
+      if (videoRef.current?.srcObject) {
+        (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: newFront ? "user" : "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+        applyZoomTransform(camMode, newFront);
+      }
+    } catch {}
+  }, [isFront, videoRef, applyZoomTransform, camMode]);
 
   const triggerCapture = useCallback(() => {
     const canvas = captureCanvasRef.current;
