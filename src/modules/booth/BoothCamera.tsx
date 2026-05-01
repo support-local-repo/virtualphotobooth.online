@@ -29,21 +29,7 @@ export default function BoothCamera() {
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
   const totalShots = layout.count;
 
-  useEffect(() => {
-    // Check if camera permission already granted — skip prompt
-    if (navigator.permissions) {
-      navigator.permissions.query({ name: "camera" as PermissionName })
-        .then(result => {
-          if (result.state === "granted" || result.state === "prompt") {
-            startCamera();
-          }
-        })
-        .catch(() => startCamera()); // fallback if permissions API not supported
-    } else {
-      startCamera();
-    }
-    return () => stopCamera();
-  }, []);
+  useEffect(() => { startCamera(); return () => stopCamera(); }, []);
 
   const goToResult = useCallback((finalPhotos: CapturedPhoto[]) => {
     sessionStorage.setItem("vpb_photos", JSON.stringify(finalPhotos.map((p) => p.dataUrl)));
