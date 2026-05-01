@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import HeroSection from "./HeroSection";
-import FeaturesSection from "./FeaturesSection";
 
 const PAYPAL_URL = "https://www.paypal.com/ncp/payment/X2BF6EEGHCW2U";
 

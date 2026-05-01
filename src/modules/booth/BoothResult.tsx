@@ -311,12 +311,8 @@ export default function BoothResult() {
 
           <div className="flex flex-col gap-2 w-full max-w-[280px]">
             <button onClick={() => handleDownload("png")} className="vpb-btn-primary justify-center py-3 text-sm">Save Image</button>
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => handleDownload("jpg")}     className="vpb-btn-secondary justify-center py-2.5 text-xs">JPG</button>
-              <button onClick={() => handleDownload("stories")} className="vpb-btn-secondary justify-center py-2.5 text-xs">Stories</button>
-            </div>
+
             <div className="grid grid-cols-3 gap-2">
-              <button onClick={handleCopy}                className="vpb-btn-secondary justify-center py-2.5 text-xs">{copied ? "✓" : "Copy"}</button>
               <button onClick={() => { setPrintModal(true); }} className="vpb-btn-secondary justify-center py-2.5 text-xs">Print</button>
               <button onClick={() => setEmailModal(true)} className="vpb-btn-secondary justify-center py-2.5 text-xs">Email</button>
             </div>

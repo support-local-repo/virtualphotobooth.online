@@ -14,8 +14,20 @@ export default function BoothLayout({ children }: { children: ReactNode }) {
           Virtual Photo Booth
         </Link>
         <Link href="/booth"
-          className="text-xs font-mono font-semibold px-3 py-1.5 rounded-pill transition-all duration-200"
-          style={{ background: "rgba(232, 57, 154, 0.08)", border: "1px solid rgba(232, 57, 154, 0.20)", color: "#e8399a" }}>
+          style={{
+            background:   "rgba(232, 57, 154, 0.08)",
+            border:       "1px solid rgba(232, 57, 154, 0.20)",
+            color:        "#e8399a",
+            fontFamily:   "monospace",
+            fontSize:     "11px",
+            fontWeight:   600,
+            padding:      "6px 14px",
+            borderRadius: "999px",
+            whiteSpace:   "nowrap",
+            lineHeight:   "1",
+            display:      "inline-flex",
+            alignItems:   "center",
+          }}>
           ← Start Over
         </Link>
       </nav>
