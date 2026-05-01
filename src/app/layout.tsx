@@ -8,8 +8,8 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title:       "Virtual Photo Booth — Free Online Photo Strips",
-  description: "Free online photo booth. Create beautiful photo strips with cute stickers, filters, and effects. No account needed. Instant download.",
+  title:       "Virtual Photo Booth | Free Online Photobooth & Photo Strip Maker",
+  description: "Free online photobooth — take instant photo strips with cute stickers, filters & frames. No download needed. Works on any device. Loved by teens on TikTok.",
   keywords:    [
     "photobooth", "photo booth", "virtual photo booth", "online photobooth",
     "free photobooth", "photobooth website", "photobooth website tiktok",
