@@ -25,7 +25,7 @@ export default function BoothCamera() {
   const [shotIndex,   setShotIndex]   = useState(0);
   const [isCapturing, setIsCapturing] = useState(false);
   const [flash,       setFlash]       = useState(false);
-  const [camMode,     setCamMode]     = useState<"selfie" | "normal" | "0.5x" | "2x">("selfie");
+  const [camMode,     setCamMode]     = useState<"selfie" | "normal" | "wide" | "2x">("selfie");
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
   const totalShots = layout.count;
 
@@ -52,7 +52,7 @@ export default function BoothCamera() {
     router.push("/booth/result?" + query.toString());
   }, [layoutId, filterId, themeId, borderWidth, stopCamera, router]);
 
-  const switchCamera = useCallback(async (mode: "selfie" | "normal" | "0.5x" | "2x") => {
+  const switchCamera = useCallback(async (mode: "selfie" | "normal" | "wide" | "2x") => {
     setCamMode(mode);
 
     // For front/rear switch — restart stream with different facingMode
@@ -80,7 +80,7 @@ export default function BoothCamera() {
     if (videoRef.current) {
       let transform = "none";
       if (mode === "selfie") transform = "scaleX(-1)";
-      else if (mode === "0.5x") transform = "scale(0.6)";
+      else if (mode === "wide") transform = "scale(0.6)";
       else if (mode === "2x")   transform = "scale(1.8)";
       videoRef.current.style.transform       = transform;
       videoRef.current.style.transformOrigin = "center";
