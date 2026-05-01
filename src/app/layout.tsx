@@ -37,10 +37,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor:    "#e8399a",
-  width:         "device-width",
-  initialScale:  1,
-  maximumScale:  1,      // prevent zoom on mobile inputs — important for teen UX
+  themeColor:          "#e8399a",
+  width:               "device-width",
+  initialScale:        1,
+  maximumScale:        1,
+  viewportFit:         "cover",  // enables safe-area-inset on iOS notch
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

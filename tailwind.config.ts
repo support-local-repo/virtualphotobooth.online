@@ -69,6 +69,17 @@ const config: Config = {
         "4.5": "1.125rem",
         "18":  "4.5rem",
         "22":  "5.5rem",
+        "safe-top":    "env(safe-area-inset-top, 0px)",
+        "safe-bottom": "env(safe-area-inset-bottom, 0px)",
+        "safe-left":   "env(safe-area-inset-left, 0px)",
+        "safe-right":  "env(safe-area-inset-right, 0px)",
+      },
+      screens: {
+        "xs": "375px",
+        "sm": "640px",
+        "md": "768px",
+        "lg": "1024px",
+        "xl": "1280px",
       },
 
       // Border radius
