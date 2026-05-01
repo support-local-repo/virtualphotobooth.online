@@ -94,16 +94,12 @@ export default function BoothCamera() {
       ctx.translate(vw, 0);
       ctx.scale(-1, 1);
     }
-    if (scale !== 1) {
-      // Crop center for zoom simulation
-      const sw = vw / scale;
-      const sh = vh / scale;
-      const sx = (vw - sw) / 2;
-      const sy = (vh - sh) / 2;
-      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, vw, vh);
-    } else {
-      ctx.drawImage(video, 0, 0, vw, vh);
-    }
+    // Crop center region based on zoom level
+    const cropW = vw / scale;
+    const cropH = vh / scale;
+    const cropX = (vw - cropW) / 2;
+    const cropY = (vh - cropH) / 2;
+    ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, vw, vh);
     ctx.restore();
 
     const ok = canvas.width > 0;
