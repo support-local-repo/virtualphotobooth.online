@@ -143,10 +143,18 @@ export default function BoothCamera() {
                 {filter.label}
               </div>
             )}
-            <button onClick={toggleMirror}
-              className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-sm"
-              style={{ background: "rgba(255,255,255,0.80)" }}>
-              ↔️
+            <button onClick={() => switchCamera(camMode === "selfie" ? "normal" : "selfie")}
+              style={{
+                position: "absolute", top: 12, right: 12,
+                width: 40, height: 40, borderRadius: "50%",
+                background: "rgba(0,0,0,0.50)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff", fontSize: "18px",
+                cursor: "pointer", minHeight: "unset", minWidth: "unset",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+              🔄
             </button>
           </div>
 
