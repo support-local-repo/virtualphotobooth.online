@@ -94,12 +94,14 @@ export default function BoothCamera() {
       ctx.translate(vw, 0);
       ctx.scale(-1, 1);
     }
-    // Crop center region based on zoom level
-    const cropW = vw / scale;
-    const cropH = vh / scale;
-    const cropX = (vw - cropW) / 2;
-    const cropY = (vh - cropH) / 2;
-    ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, vw, vh);
+    // Match exactly what CSS scale() shows on screen
+    // CSS scale(s) means we see 1/s of the video centered
+    // So crop = 1/s of full dimensions, centered
+    const visibleW = vw / scale;
+    const visibleH = vh / scale;
+    const offsetX  = (vw - visibleW) / 2;
+    const offsetY  = (vh - visibleH) / 2;
+    ctx.drawImage(video, offsetX, offsetY, visibleW, visibleH, 0, 0, vw, vh);
     ctx.restore();
 
     const ok = canvas.width > 0;
