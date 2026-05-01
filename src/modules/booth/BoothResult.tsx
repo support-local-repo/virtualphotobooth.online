@@ -7,8 +7,10 @@ import { useCanvas } from "@/modules/canvas/useCanvas";
 import { LAYOUT_OPTIONS, CAMERA_FILTERS, STRIP_THEMES } from "@/core/theme";
 import { STICKER_PACKS } from "@/config/stickers.config";
 import { createSticker } from "@/modules/canvas/stickers";
-import { copyCanvasToClipboard } from "@/shared/utils/clipboard";
+import { useSessionFlag, SESSION_FLAGS } from "@/shared/hooks/useSessionFlag";
 import type { StripConfig, PlacedSticker, CapturedPhoto } from "@/modules/canvas/canvas.types";
+
+const PAYPAL_URL = "https://www.paypal.com/ncp/payment/X2BF6EEGHCW2U";
 
 const FONTS: [string, string][] = [
   ["Dancing Script",        "Dancing Script — feminine"],
@@ -32,7 +34,8 @@ type TextItem = { id: string; text: string; font: string; color: string; x: numb
 export default function BoothResult() {
   const router  = useRouter();
   const params  = useSearchParams();
-  const { canvasRef, renderStrip, exportStrip, getDataUrl } = useCanvas();
+  const { canvasRef, renderStrip, exportStrip } = useCanvas();
+  const watermarkUnlocked = useSessionFlag(SESSION_FLAGS.WATERMARK_UNLOCKED);
 
   const layoutId    = params.get("layout")      ?? "4";
   const filterId    = params.get("filter")      ?? "normal";
@@ -45,26 +48,39 @@ export default function BoothResult() {
 
   const [photos,        setPhotos]        = useState<CapturedPhoto[]>([]);
   const [stickers,      setStickers]      = useState<PlacedSticker[]>([]);
+  const [textItems,     setTextItems]     = useState<TextItem[]>([]);
+  const [textInput,     setTextInput]     = useState("");
+  const [textFont,      setTextFont]      = useState("Dancing Script");
+  const [textColor,     setTextColor]     = useState("#e8399a");
+  const [textSize,      setTextSize]      = useState(18);
   const [showDate,      setShowDate]      = useState(true);
+  const [showWatermark, setShowWatermark] = useState(true);
   const [activeTab,     setActiveTab]     = useState<"stickers" | "text" | "options">("stickers");
   const [activePack,    setActivePack]    = useState(0);
+  const [printModal,    setPrintModal]    = useState(false);
   const [toast,         setToast]         = useState<string | null>(null);
-  const [copied,        setCopied]        = useState(false);
-  const [printModal,     setPrintModal]     = useState(false);
-  const [textItems,      setTextItems]      = useState<TextItem[]>([]);
-  const [textInput,      setTextInput]      = useState("");
-  const [textFont,       setTextFont]       = useState("Dancing Script");
-  const [textColor,      setTextColor]      = useState("#e8399a");
-  const [textSize,       setTextSize]       = useState(18);
+  const [showGate,      setShowGate]      = useState(false);
   const [ready,         setReady]         = useState(false);
   const [loopModal,     setLoopModal]     = useState(false);
   const [frameScale,    setFrameScale]    = useState(1);
   const [framePos,      setFramePos]      = useState({ x: 0, y: 0 });
   const [frameSrc,      setFrameSrc]      = useState<string | null>(null);
-  const frameDragRef    = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
 
   const stripWrapperRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
+
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel  = "stylesheet";
+    link.href = FONT_IMPORT;
+    document.head.appendChild(link);
+  }, []);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("vpb_template_type") === "background") {
+      setFrameSrc(sessionStorage.getItem("vpb_template"));
+    }
+  }, []);
 
   useEffect(() => {
     try {
@@ -77,30 +93,14 @@ export default function BoothResult() {
     } catch { setReady(true); }
   }, []);
 
-  useEffect(() => {
-    if (sessionStorage.getItem("vpb_template_type") === "background") {
-      setFrameSrc(sessionStorage.getItem("vpb_template"));
-    }
-  }, []);
-
-  useEffect(() => {
-    const link = document.createElement("link");
-    link.rel  = "stylesheet";
-    link.href = FONT_IMPORT;
-    document.head.appendChild(link);
-  }, []);
-
-  function addTextItem() {
-    if (!textInput.trim()) return;
-    setTextItems((prev) => [...prev, { id: crypto.randomUUID(), text: textInput.trim(), font: textFont, color: textColor, x: 0.5, y: 0.5, size: textSize }]);
-    setTextInput("");
-  }
-
   const config: StripConfig = {
     layout, filter, theme, borderWidth, showDate,
-    showWatermark: false,
+    showWatermark: showWatermark && !watermarkUnlocked.value,
     stickers, textOverlay: null,
   };
+
+  const textItemsRef = useRef<TextItem[]>([]);
+  textItemsRef.current = textItems;
 
   useEffect(() => {
     if (ready && photos.length > 0) renderStrip(photos, config);
@@ -117,6 +117,12 @@ export default function BoothResult() {
 
   function addSticker(emoji: string) {
     setStickers((prev) => [...prev, createSticker(emoji, 0.3 + Math.random() * 0.4, 0.2 + Math.random() * 0.6)]);
+  }
+
+  function addTextItem() {
+    if (!textInput.trim()) return;
+    setTextItems((prev) => [...prev, { id: crypto.randomUUID(), text: textInput.trim(), font: textFont, color: textColor, x: 0.5, y: 0.5, size: textSize }]);
+    setTextInput("");
   }
 
   function onItemPointerDown(e: React.PointerEvent, itemId: string, origX: number, origY: number) {
@@ -148,19 +154,10 @@ export default function BoothResult() {
   function onWrapperPointerMove(_e: React.PointerEvent) {}
   function onWrapperPointerUp() {}
 
-  async function handleDownload(format: "png" | "jpg" | "stories") {
+  async function handleDownload(format: "png" | "stories") {
     await exportStrip(format, config);
-    showToast(format === "stories" ? "Stories version downloaded ✨" : "Strip downloaded 🎀");
-  }
-
-  async function handleCopy() {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const result = await copyCanvasToClipboard(canvas);
-    if (result.success) {
-      setCopied(true); showToast("Copied to clipboard ✨");
-      setTimeout(() => setCopied(false), 2000);
-    } else { showToast("Copy not supported on this device"); }
+    showToast("Strip saved 🎀");
+    if (sessionStorage.getItem("vpb_loop_frame")) setLoopModal(true);
   }
 
   function handlePrint(size: "wallet" | "strip" | "4x6" | "3r" | "4r") {
@@ -176,9 +173,12 @@ export default function BoothResult() {
       "@media print{body{background:white;}}</style></head>" +
       "<body><img src=\"" + canvas.toDataURL("image/png") + "\" onload=\"window.print();window.close();\" /></body></html>"
     );
-  } catch { setEmailState("error"); showToast("Email failed — please try again"); }
   }
 
+  function handleWatermarkToggle() {
+    if (showWatermark && !watermarkUnlocked.value) setShowGate(true);
+    else setShowWatermark((p) => !p);
+  }
 
   if (!ready) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -189,7 +189,7 @@ export default function BoothResult() {
   if (photos.length === 0) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4">
       <p className="text-4xl">📷</p>
-      <p className="font-body text-sm" style={{ color: "#7a5068" }}>No photos found. Let's start over.</p>
+      <p className="font-body text-sm" style={{ color: "#7a5068" }}>No photos found. Let us start over.</p>
       <button onClick={() => router.push("/booth")} className="vpb-btn-primary px-6 py-3">Back to Booth</button>
     </div>
   );
@@ -208,102 +208,93 @@ export default function BoothResult() {
       </AnimatePresence>
 
       <div className="text-center mb-8">
-        <p className="font-mono text-xs tracking-widest uppercase mb-2" style={{ color: "#e8399a" }}>✦ Your strip is ready</p>
+        <p className="font-mono text-xs tracking-widest uppercase mb-2" style={{ color: "#e8399a" }}>Your strip is ready</p>
         <h1 className="font-display text-h2 font-bold" style={{ color: "#2d1a26" }}>Looking good ✨</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
 
         <div className="flex flex-col items-center gap-4">
-          {/* Canvas + draggable sticker overlay */}
-          <div
-            ref={stripWrapperRef}
-            className="relative"
-            style={{ maxWidth: 280, width: "100%", position: "relative", overflow: "hidden", touchAction: "none" }}
-            onPointerMove={onWrapperPointerMove}
-            onPointerUp={onWrapperPointerUp}
-            onPointerLeave={onWrapperPointerUp}
-            onPointerCancel={onWrapperPointerUp}
-          >
+          <div style={{ maxWidth: 280, width: "100%", position: "relative" }}>
             <motion.canvas ref={canvasRef}
               className="rounded-strip shadow-strip"
               style={{ width: "100%", height: "auto", display: "block", position: "relative", zIndex: 1, pointerEvents: "none" }}
               initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} />
-
-            {stickers.map((sticker) => (
-              <div key={sticker.id}
-                onPointerDown={(e) => onItemPointerDown(e, sticker.id, sticker.x, sticker.y)}
-                style={{
-                  position: "absolute", left: sticker.x * 100 + "%", top: sticker.y * 100 + "%",
-                  transform: "translate(-50%, -50%)", fontSize: "28px",
-                  cursor: "grab", userSelect: "none", touchAction: "none",
-                  lineHeight: 1, filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.25))",
-                  zIndex: 20, pointerEvents: "auto",
-                }}>
-                {sticker.emoji}
-              </div>
-            ))}
-
-            {textItems.map((item) => (
-              <div
-                key={item.id}
-                onPointerDown={(e) => onItemPointerDown(e, item.id, item.x, item.y)}
-                style={{
-                  position:    "absolute",
-                  left:        `${item.x * 100}%`,
-                  top:         `${item.y * 100}%`,
-                  transform:   "translate(-50%, -50%)",
-                  fontFamily:  item.font,
-                  fontSize:    (item.size ?? 18) + "px",
-                  color:       item.color,
-                  cursor:      "grab",
-                  userSelect:  "none",
-                  touchAction: "none",
-                  pointerEvents: "auto",
-                  zIndex: 30,
-                  whiteSpace:  "nowrap",
-                  textShadow:  "0 1px 3px rgba(0,0,0,0.35)",
-                  fontWeight:  600,
-                }}>
-                {item.text}
-              </div>
-            ))}
-
-
+            <div
+              ref={stripWrapperRef}
+              style={{ position: "absolute", inset: 0, touchAction: "none" }}
+              onPointerMove={onWrapperPointerMove}
+              onPointerUp={onWrapperPointerUp}
+              onPointerLeave={onWrapperPointerUp}
+            >
+              {stickers.map((sticker) => (
+                <div key={sticker.id}
+                  onPointerDown={(e) => onItemPointerDown(e, sticker.id, sticker.x, sticker.y)}
+                  style={{
+                    position: "absolute", left: sticker.x * 100 + "%", top: sticker.y * 100 + "%",
+                    transform: "translate(-50%, -50%)", fontSize: "28px",
+                    cursor: "grab", userSelect: "none", touchAction: "none",
+                    lineHeight: 1, filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.25))",
+                    zIndex: 20, pointerEvents: "auto",
+                  }}>
+                  {sticker.emoji}
+                </div>
+              ))}
+              {textItems.map((item) => (
+                <div key={item.id}
+                  onPointerDown={(e) => onItemPointerDown(e, item.id, item.x, item.y)}
+                  style={{
+                    position:    "absolute",
+                    left:        item.x * 100 + "%",
+                    top:         item.y * 100 + "%",
+                    transform:   "translate(-50%, -50%)",
+                    fontFamily:  item.font,
+                    fontSize:    (item.size ?? 18) + "px",
+                    color:       item.color,
+                    fontWeight:  600,
+                    cursor:      "grab",
+                    userSelect:  "none",
+                    touchAction: "none",
+                    whiteSpace:  "nowrap",
+                    textShadow:  "0 1px 3px rgba(0,0,0,0.35)",
+                    zIndex:      30,
+                    pointerEvents: "auto",
+                  }}>
+                  {item.text}
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Frame scale slider */}
           {frameSrc && (
             <div className="w-full max-w-[280px] flex items-center gap-2">
               <span className="font-mono text-xs" style={{ color: "#b08898" }}>Scale</span>
               <input type="range" min="0.5" max="2" step="0.05" value={frameScale}
                 onChange={(e) => {
-                const v = Number(e.target.value);
-                setFrameScale(v);
-                sessionStorage.setItem("vpb_frame_scale", String(v));
-                setTimeout(() => renderStrip(photos, config), 50);
-              }}
+                  const v = Number(e.target.value);
+                  setFrameScale(v);
+                  sessionStorage.setItem("vpb_frame_scale", String(v));
+                  setTimeout(() => renderStrip(photos, config), 50);
+                }}
                 className="flex-1" />
               <button onClick={() => {
-  setFrameScale(1);
-  setFramePos({ x: 0, y: 0 });
-  sessionStorage.setItem("vpb_frame_scale", "1");
-  setTimeout(() => renderStrip(photos, config), 50);
-}}
-                className="font-mono text-xs" style={{ color: "#b08898" }}>Reset</button>
+                setFrameScale(1);
+                setFramePos({ x: 0, y: 0 });
+                sessionStorage.setItem("vpb_frame_scale", "1");
+                setTimeout(() => renderStrip(photos, config), 50);
+              }} className="font-mono text-xs" style={{ color: "#b08898" }}>Reset</button>
             </div>
           )}
 
           <div className="flex flex-col gap-2 w-full max-w-[280px]">
-            <button onClick={() => handleDownload("png")} className="vpb-btn-primary justify-center py-3 text-sm">Save Image</button>
-
-            <div className="grid grid-cols-3 gap-2">
-              <button onClick={() => { setPrintModal(true); }} className="vpb-btn-secondary justify-center py-2.5 text-xs">Print</button>
-            </div>
-            <button onClick={() => router.push("/booth")} className="text-center font-mono text-xs py-2 transition-colors" style={{ color: "#b08898" }}>
-              ← Make another
+            <button onClick={() => handleDownload("png")} className="vpb-btn-primary justify-center py-3 text-sm">
+              Save Image
             </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => setPrintModal(true)} className="vpb-btn-secondary justify-center py-2.5 text-xs">Print</button>
+              <button onClick={() => router.push("/booth")} className="vpb-btn-secondary justify-center py-2.5 text-xs">← New Strip</button>
+            </div>
           </div>
         </div>
 
@@ -336,20 +327,16 @@ export default function BoothResult() {
               <div className="grid grid-cols-8 gap-1 mb-4">
                 {STICKER_PACKS[activePack].items.map((emoji) => (
                   <button key={emoji} onClick={() => addSticker(emoji)}
-                    className="text-2xl p-1.5 rounded-lg hover:scale-125 transition-transform duration-150"
-                    style={{ hover: { background: "rgba(232,57,154,0.10)" } } as React.CSSProperties}>
+                    className="text-2xl p-1.5 rounded-lg hover:scale-125 transition-transform duration-150">
                     {emoji}
                   </button>
                 ))}
               </div>
               {stickers.length > 0 && (
                 <div className="flex gap-3 items-center">
-                  <button onClick={() => setStickers((p) => p.slice(0, -1))} className="font-mono text-xs tracking-wide" style={{ color: "#b08898" }}>↩ Undo last</button>
-                  <button onClick={() => setStickers([])}                     className="font-mono text-xs tracking-wide" style={{ color: "#b08898" }}>✕ Clear all</button>
+                  <button onClick={() => setStickers((p) => p.slice(0, -1))} className="font-mono text-xs" style={{ color: "#b08898" }}>Undo last</button>
+                  <button onClick={() => setStickers([])} className="font-mono text-xs" style={{ color: "#b08898" }}>Clear all</button>
                 </div>
-              )}
-              {stickers.length > 0 && (
-                <p className="font-mono text-xs mt-3" style={{ color: "#d4a8c0" }}>Drag stickers on the strip to reposition</p>
               )}
             </div>
           )}
@@ -392,9 +379,6 @@ export default function BoothResult() {
                   <button onClick={() => setTextItems([])} className="font-mono text-xs" style={{ color: "#b08898" }}>Clear all</button>
                 </div>
               )}
-              {textItems.length > 0 && (
-                <p className="font-mono text-xs" style={{ color: "#d4a8c0" }}>Drag text on the strip to reposition</p>
-              )}
             </div>
           )}
 
@@ -412,9 +396,20 @@ export default function BoothResult() {
                     style={{ transform: showDate ? "translateX(22px)" : "translateX(2px)" }} />
                 </button>
               </div>
-
-
-
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-body text-sm font-semibold" style={{ color: "#2d1a26" }}>Watermark</p>
+                  <p className="font-mono text-xs" style={{ color: "#b08898" }}>
+                    {watermarkUnlocked.value ? "Unlocked ✓" : "Remove for $1.99 donation"}
+                  </p>
+                </div>
+                <button onClick={handleWatermarkToggle}
+                  className="w-11 h-6 rounded-pill relative transition-colors duration-200"
+                  style={{ background: (!showWatermark || watermarkUnlocked.value) ? "#e8399a" : "rgba(220,120,180,0.25)" }}>
+                  <div className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200"
+                    style={{ transform: (!showWatermark || watermarkUnlocked.value) ? "translateX(22px)" : "translateX(2px)" }} />
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -431,7 +426,7 @@ export default function BoothResult() {
               <h3 className="font-display text-xl font-bold mb-2" style={{ color: "#2d1a26" }}>Print Size</h3>
               <p className="font-body text-sm mb-6" style={{ color: "#7a5068" }}>Choose a size before printing.</p>
               <div className="flex flex-col gap-3">
-                {([["wallet", "Wallet — small"], ["strip", "Strip — standard"], ["3r", "3R — 3×5 inch"], ["4r", "4R — 4×6 inch"], ["4x6", "4×6 — large"]] as ["wallet"|"strip"|"4x6"|"3r"|"4r", string][]).map(([size, label]) => (
+                {([["wallet", "Wallet — small"], ["strip", "Strip — standard"], ["3r", "3R — 3×5 inch"], ["4r", "4R — 4×6 inch"], ["4x6", "4×6 — large"]] as ["wallet"|"strip"|"3r"|"4r"|"4x6", string][]).map(([size, label]) => (
                   <button key={size} onClick={() => { handlePrint(size); setPrintModal(false); }}
                     className="vpb-btn-secondary justify-center py-3 text-sm">{label}</button>
                 ))}
@@ -442,7 +437,30 @@ export default function BoothResult() {
         )}
       </AnimatePresence>
 
-      {/* Loop modal */}
+      <AnimatePresence>
+        {showGate && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(45,26,38,0.50)" }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={(e) => { if (e.target === e.currentTarget) setShowGate(false); }}>
+            <motion.div className="vpb-glass p-8 w-full max-w-sm rounded-card shadow-modal text-center"
+              initial={{ scale: 0.92, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 16 }}>
+              <p className="text-4xl mb-3">🩷</p>
+              <h3 className="font-display text-xl font-bold mb-2" style={{ color: "#2d1a26" }}>Support the project</h3>
+              <p className="font-body text-sm mb-6" style={{ color: "#7a5068" }}>
+                Remove the watermark with a small $1.99 donation.
+              </p>
+              <a href={PAYPAL_URL} target="_blank" rel="noopener noreferrer"
+                onClick={() => { watermarkUnlocked.set(true); setShowWatermark(false); setShowGate(false); showToast("Watermark removed — thank you 🩷"); }}
+                className="vpb-btn-primary w-full justify-center py-3 mb-3 block">
+                Donate $1.99 and Remove Watermark
+              </a>
+              <button onClick={() => setShowGate(false)} className="w-full text-center font-mono text-xs py-2" style={{ color: "#b08898" }}>Keep watermark</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {loopModal && (
           <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -452,53 +470,15 @@ export default function BoothResult() {
               initial={{ scale: 0.92, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 16 }}>
               <p className="text-4xl mb-3">📸</p>
               <h3 className="font-display text-xl font-bold mb-2" style={{ color: "#2d1a26" }}>Capture more?</h3>
-              <p className="font-body text-sm mb-6" style={{ color: "#7a5068" }}>
-                Use the same frame for your next photo session?
-              </p>
+              <p className="font-body text-sm mb-6" style={{ color: "#7a5068" }}>Use the same frame for your next session?</p>
               <div className="flex flex-col gap-3">
-                <button onClick={() => {
-                  setLoopModal(false);
-                  const params = new URLSearchParams(window.location.search);
-                  router.push("/booth/camera?" + params.toString());
-                }} className="vpb-btn-primary justify-center py-3 text-sm">
-                  📸 Camera — same frame
-                </button>
-                <button onClick={() => {
-                  setLoopModal(false);
-                  const params = new URLSearchParams(window.location.search);
-                  router.push("/booth/upload?" + params.toString());
-                }} className="vpb-btn-secondary justify-center py-3 text-sm">
-                  🖼️ Upload — same frame
-                </button>
-                <button onClick={() => {
-                  sessionStorage.clear();
-                  router.push("/booth");
-                }} className="font-mono text-xs py-2" style={{ color: "#b08898" }}>
-                  Start over — clear everything
-                </button>
+                <button onClick={() => { setLoopModal(false); router.push("/booth/camera?" + new URLSearchParams(window.location.search).toString()); }}
+                  className="vpb-btn-primary justify-center py-3 text-sm">Camera — same frame</button>
+                <button onClick={() => { setLoopModal(false); router.push("/booth/upload?" + new URLSearchParams(window.location.search).toString()); }}
+                  className="vpb-btn-secondary justify-center py-3 text-sm">Upload — same frame</button>
+                <button onClick={() => { sessionStorage.clear(); router.push("/booth"); }}
+                  className="font-mono text-xs py-2" style={{ color: "#b08898" }}>Start over</button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {emailModal && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: "rgba(45,26,38,0.50)" }}
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={(e) => { if (e.target === e.currentTarget) setEmailModal(false); }}>
-            <motion.div className="vpb-glass p-8 w-full max-w-sm rounded-card shadow-modal"
-              initial={{ scale: 0.92, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 16 }}>
-              <h3 className="font-display text-xl font-bold mb-1" style={{ color: "#2d1a26" }}>Send to Email</h3>
-              <p className="font-body text-sm mb-5" style={{ color: "#7a5068" }}>Your strip will be attached as a full-res PNG.</p>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com" className="vpb-input mb-4"
-                onKeyDown={(e) => e.key === "Enter" && handleEmail()} />
-              <button onClick={handleEmail} disabled={emailState === "sending"} className="vpb-btn-primary w-full justify-center py-3 mb-3">
-                {emailState === "sending" ? "Sending..." : emailState === "sent" ? "Sent ✓" : "Send Strip 📧"}
-              </button>
-              <button onClick={() => setEmailModal(false)} className="w-full text-center font-mono text-xs py-2" style={{ color: "#b08898" }}>Cancel</button>
             </motion.div>
           </motion.div>
         )}
