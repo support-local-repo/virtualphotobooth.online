@@ -25,6 +25,7 @@ export default function BoothCamera() {
   const [shotIndex,   setShotIndex]   = useState(0);
   const [isCapturing, setIsCapturing] = useState(false);
   const [flash,       setFlash]       = useState(false);
+  const [camMode,     setCamMode]     = useState<"selfie" | "normal" | "0.5x" | "2x">("selfie");
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
   const totalShots = layout.count;
 
