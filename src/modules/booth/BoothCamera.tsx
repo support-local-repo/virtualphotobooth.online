@@ -94,14 +94,30 @@ export default function BoothCamera() {
       ctx.translate(vw, 0);
       ctx.scale(-1, 1);
     }
-    // Match exactly what CSS scale() shows on screen
-    // CSS scale(s) means we see 1/s of the video centered
-    // So crop = 1/s of full dimensions, centered
-    const visibleW = vw / scale;
-    const visibleH = vh / scale;
-    const offsetX  = (vw - visibleW) / 2;
-    const offsetY  = (vh - visibleH) / 2;
-    ctx.drawImage(video, offsetX, offsetY, visibleW, visibleH, 0, 0, vw, vh);
+    // For zoom modes — crop center to match what's visible on screen
+    if (scale > 1) {
+      // 2x: crop inner 50% of center
+      const cw = Math.floor(vw / scale);
+      const ch = Math.floor(vh / scale);
+      const cx = Math.floor((vw - cw) / 2);
+      const cy = Math.floor((vh - ch) / 2);
+      // Draw cropped region stretched to full canvas
+      const tmp = document.createElement("canvas");
+      tmp.width = vw; tmp.height = vh;
+      const tc = tmp.getContext("2d")!;
+      tc.drawImage(video, cx, cy, cw, ch, 0, 0, vw, vh);
+      ctx.drawImage(tmp, 0, 0);
+    } else if (scale < 1) {
+      // Wide: draw full video scaled down, centered on larger canvas
+      const dw = Math.floor(vw * scale);
+      const dh = Math.floor(vh * scale);
+      const dx = Math.floor((vw - dw) / 2);
+      const dy = Math.floor((vh - dh) / 2);
+      ctx.clearRect(0, 0, vw, vh);
+      ctx.drawImage(video, dx, dy, dw, dh);
+    } else {
+      ctx.drawImage(video, 0, 0, vw, vh);
+    }
     ctx.restore();
 
     const ok = canvas.width > 0;
