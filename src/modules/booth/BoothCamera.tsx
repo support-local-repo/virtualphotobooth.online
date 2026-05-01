@@ -25,7 +25,8 @@ export default function BoothCamera() {
   const [shotIndex,   setShotIndex]   = useState(0);
   const [isCapturing, setIsCapturing] = useState(false);
   const [flash,       setFlash]       = useState(false);
-  const [camMode,     setCamMode]     = useState<"selfie" | "normal" | "wide" | "2x" | "front-wide" | "front-normal" | "front-2x">("selfie");
+  const [camMode,     setCamMode]     = useState<"wide" | "normal" | "2x">("normal");
+  const [isFront,     setIsFront]     = useState(true);
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
   const totalShots = layout.count;
 
@@ -38,41 +39,39 @@ export default function BoothCamera() {
     router.push("/booth/result?" + query.toString());
   }, [layoutId, filterId, themeId, borderWidth, stopCamera, router]);
 
-  const switchCamera = useCallback(async (mode: "selfie" | "normal" | "wide" | "2x") => {
+  const applyZoomTransform = useCallback((mode: "wide" | "normal" | "2x", front: boolean) => {
+    if (!videoRef.current) return;
+    let transform = front ? "scaleX(-1)" : "none";
+    if (mode === "wide") transform = front ? "scaleX(-1) scale(0.62)" : "scale(0.62)";
+    if (mode === "2x")   transform = front ? "scaleX(-1) scale(1.8)"  : "scale(1.8)";
+    videoRef.current.style.transform       = transform;
+    videoRef.current.style.transformOrigin = "center";
+    videoRef.current.style.transition      = "transform 0.3s ease";
+  }, [videoRef]);
+
+  const switchCamera = useCallback((mode: "wide" | "normal" | "2x") => {
     setCamMode(mode);
+    applyZoomTransform(mode, isFront);
+  }, [isFront, applyZoomTransform]);
 
-    // For front/rear switch — restart stream with different facingMode
-    // For 0.5x/2x — CSS zoom simulation on existing stream (avoids iOS native camera trigger)
-    const needsRestart = (mode === "selfie") !== (camMode === "selfie");
-
-    if (needsRestart) {
-      stopCamera();
-      setTimeout(async () => {
-        try {
-          const isFront = mode === "selfie";
-          const stream = await navigator.mediaDevices.getUserMedia({
-            audio: false,
-            video: { facingMode: isFront ? "user" : "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
-          });
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-            await videoRef.current.play();
-          }
-        } catch (err) { console.error("Camera restart failed:", err); }
-      }, 300);
-    }
-
-    // Always apply CSS transform for zoom simulation
-    if (videoRef.current) {
-      let transform = "none";
-      if (mode === "selfie") transform = "scaleX(-1)";
-      else if (mode === "wide") transform = "scale(0.6)";
-      else if (mode === "2x")   transform = "scale(1.8)";
-      videoRef.current.style.transform       = transform;
-      videoRef.current.style.transformOrigin = "center";
-      videoRef.current.style.transition      = "transform 0.35s ease";
-    }
-  }, [stopCamera, videoRef, camMode]);
+  const flipCamera = useCallback(async () => {
+    const newFront = !isFront;
+    setIsFront(newFront);
+    stopCamera();
+    setTimeout(async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: { facingMode: newFront ? "user" : "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+          applyZoomTransform(camMode, newFront);
+        }
+      } catch {}
+    }, 300);
+  }, [isFront, stopCamera, videoRef, applyZoomTransform, camMode]);
 
   const triggerCapture = useCallback(() => {
     const canvas = captureCanvasRef.current;
@@ -180,21 +179,19 @@ export default function BoothCamera() {
                 {filter.label}
               </div>
             )}
-            <button onClick={() => {
-                const isFront = camMode === "selfie";
-                switchCamera(isFront ? "normal" : "selfie");
-              }}
+            <button onClick={flipCamera}
               style={{
-                position: "absolute", top: 12, right: 12,
-                width: 40, height: 40, borderRadius: "50%",
-                background: "rgba(0,0,0,0.50)",
+                position:       "absolute", top: 12, right: 12,
+                background:     "rgba(0,0,0,0.55)",
                 backdropFilter: "blur(8px)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff", fontSize: "18px",
-                cursor: "pointer", minHeight: "unset", minWidth: "unset",
-                display: "flex", alignItems: "center", justifyContent: "center",
+                border:         "1px solid rgba(255,255,255,0.2)",
+                color:          "#fff", fontFamily: "monospace",
+                fontSize:       "11px", fontWeight: 600,
+                padding:        "6px 12px", borderRadius: "99px",
+                cursor:         "pointer", minHeight: "unset", minWidth: "unset",
+                whiteSpace:     "nowrap",
               }}>
-              🔄
+              Switch Camera
             </button>
 
             {/* Camera mode switcher — zoom row + front/rear toggle */}
