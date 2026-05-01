@@ -76,29 +76,38 @@ export default function BoothCamera() {
 
   const triggerCapture = useCallback(() => {
     const canvas = captureCanvasRef.current;
-    if (!canvas) return;
-    const ok = captureFrame(canvas);
-    if (!ok) return;
+    const video  = videoRef.current;
+    if (!canvas || !video) return;
 
-    // Apply zoom transform to captured canvas
+    // Draw video directly to canvas with zoom applied mathematically
+    const scale  = camMode === "wide" ? 0.62 : camMode === "2x" ? 1.8 : 1;
+    const vw     = video.videoWidth  || 640;
+    const vh     = video.videoHeight || 480;
+    canvas.width  = vw;
+    canvas.height = vh;
     const ctx = canvas.getContext("2d");
-    if (ctx) {
-      const scale = camMode === "wide" ? 0.62 : camMode === "2x" ? 1.8 : 1;
-      if (scale !== 1) {
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const tmpCanvas = document.createElement("canvas");
-        tmpCanvas.width  = canvas.width;
-        tmpCanvas.height = canvas.height;
-        const tmpCtx = tmpCanvas.getContext("2d")!;
-        tmpCtx.putImageData(imageData, 0, 0);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.save();
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.scale(scale, scale);
-        ctx.drawImage(tmpCanvas, -canvas.width / 2, -canvas.height / 2);
-        ctx.restore();
-      }
+    if (!ctx) return;
+
+    ctx.save();
+    // Mirror for selfie/front camera
+    if (isFront) {
+      ctx.translate(vw, 0);
+      ctx.scale(-1, 1);
     }
+    if (scale !== 1) {
+      // Crop center for zoom simulation
+      const sw = vw / scale;
+      const sh = vh / scale;
+      const sx = (vw - sw) / 2;
+      const sy = (vh - sh) / 2;
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, vw, vh);
+    } else {
+      ctx.drawImage(video, 0, 0, vw, vh);
+    }
+    ctx.restore();
+
+    const ok = canvas.width > 0;
+    if (!ok) return;
 
     setFlash(true);
     setTimeout(() => setFlash(false), 350);
