@@ -67,7 +67,6 @@ export default function HeroSection() {
           <Link href="/booth" className="vpb-btn-primary text-base px-8 py-4 shadow-donation">
             Start the Booth ✨
           </Link>
-          <a href="#features" className="vpb-btn-secondary text-sm">See how it works</a>
         </motion.div>
         <motion.p variants={staggerItem} className="mt-8 text-xs font-mono tracking-wide uppercase"
           style={{ color: "#b08898" }}>

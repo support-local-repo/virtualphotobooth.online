@@ -29,6 +29,14 @@ export async function POST(req: NextRequest): Promise<NextResponse<SendEmailResp
       );
     }
 
+    // Verify Resend API key is configured
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json(
+        { success: false, error: "Email service not configured" },
+        { status: 503 }
+      );
+    }
+
     const result = await sendStripEmail({
       to:          body.email.trim().toLowerCase(),
       subject:     "Your Virtual Photo Booth Strip 📸",
@@ -38,6 +46,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SendEmailResp
     });
 
     if (!result.success) {
+      console.error("[send-email] Resend error:", result.error);
       return NextResponse.json(
         { success: false, error: result.error ?? "Email failed to send" },
         { status: 500 }
