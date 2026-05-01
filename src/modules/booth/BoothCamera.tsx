@@ -41,31 +41,31 @@ export default function BoothCamera() {
   const switchCamera = useCallback(async (mode: "selfie" | "normal" | "0.5x" | "2x") => {
     setCamMode(mode);
     stopCamera();
-    const constraints: MediaStreamConstraints = {
-      audio: false,
-      video: mode === "selfie"
-        ? { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }
-        : mode === "0.5x"
-        ? { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }
-        : mode === "2x"
-        ? { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } }
-        : { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
-    };
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        if (mode === "0.5x")        videoRef.current.style.transform = "scale(0.65)";
-        else if (mode === "2x")     videoRef.current.style.transform = "scale(2)";
-        else if (mode === "selfie") videoRef.current.style.transform = "scaleX(-1)";
-        else                        videoRef.current.style.transform = "none";
-        videoRef.current.style.transformOrigin = "center";
-        videoRef.current.style.transition      = "transform 0.3s";
-      }
-    } catch { }
-  }, [stopCamera]);
+    // Apply zoom via CSS on video element after restart
+    setTimeout(async () => {
+      try {
+        const constraints = {
+          audio: false,
+          video: mode === "selfie"
+            ? { facingMode: "user" }
+            : mode === "0.5x" || mode === "normal"
+            ? { facingMode: { ideal: "environment" } }
+            : { facingMode: { ideal: "environment" } },
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+          if (mode === "0.5x")        videoRef.current.style.transform = "scale(0.65)";
+          else if (mode === "2x")     videoRef.current.style.transform = "scale(2)";
+          else if (mode === "selfie") videoRef.current.style.transform = "scaleX(-1)";
+          else                        videoRef.current.style.transform = "none";
+          videoRef.current.style.transformOrigin = "center";
+          videoRef.current.style.transition      = "transform 0.3s";
+        }
+      } catch { }
+    }, 300);
+  }, [stopCamera, videoRef]);
 
   const triggerCapture = useCallback(() => {
     const canvas = captureCanvasRef.current;
