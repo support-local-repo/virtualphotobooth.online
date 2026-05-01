@@ -207,6 +207,27 @@ export default function BoothCamera() {
               }}>
               🔄
             </button>
+
+            {/* Camera mode switcher */}
+            <div style={{
+              position: "absolute", bottom: 12, left: 0, right: 0,
+              display: "flex", justifyContent: "center", gap: 6, zIndex: 10,
+            }}>
+              {(["wide", "selfie", "normal", "2x"] as const).map((m) => (
+                <button key={m} onClick={() => switchCamera(m)}
+                  style={{
+                    background:     camMode === m ? "rgba(232,57,154,0.85)" : "rgba(0,0,0,0.55)",
+                    border:         "1px solid " + (camMode === m ? "rgba(232,57,154,0.5)" : "rgba(255,255,255,0.2)"),
+                    color:          "#fff", fontFamily: "monospace",
+                    fontSize:       "11px", fontWeight: 600,
+                    padding:        "5px 10px", borderRadius: "99px",
+                    cursor:         "pointer", backdropFilter: "blur(8px)",
+                    minHeight:      "unset", minWidth: "unset", whiteSpace: "nowrap",
+                  }}>
+                  {m === "wide" ? "🌐 Wide" : m === "selfie" ? "🤳 Selfie" : m === "normal" ? "📸 Normal" : "🔍 2x"}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="flex flex-col items-center gap-3 mt-5">
