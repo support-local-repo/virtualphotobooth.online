@@ -52,8 +52,7 @@ export default function BoothCamera() {
         // Front camera = user facing, rear cameras sorted by label
         const frontCam = videoDevices.find(d =>
           d.label.toLowerCase().includes("front") ||
-          d.label.toLowerCase().includes("facetime") ||
-          d.facingMode === "user"
+          d.label.toLowerCase().includes("facetime")
         ) || videoDevices[0];
 
         const rearCams = videoDevices.filter(d =>
