@@ -80,6 +80,26 @@ export default function BoothCamera() {
     const ok = captureFrame(canvas);
     if (!ok) return;
 
+    // Apply zoom transform to captured canvas
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      const scale = camMode === "wide" ? 0.62 : camMode === "2x" ? 1.8 : 1;
+      if (scale !== 1) {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const tmpCanvas = document.createElement("canvas");
+        tmpCanvas.width  = canvas.width;
+        tmpCanvas.height = canvas.height;
+        const tmpCtx = tmpCanvas.getContext("2d")!;
+        tmpCtx.putImageData(imageData, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.scale(scale, scale);
+        ctx.drawImage(tmpCanvas, -canvas.width / 2, -canvas.height / 2);
+        ctx.restore();
+      }
+    }
+
     setFlash(true);
     setTimeout(() => setFlash(false), 350);
 

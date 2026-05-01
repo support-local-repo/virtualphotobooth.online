@@ -48,9 +48,6 @@ export default function BoothResult() {
   const [showDate,      setShowDate]      = useState(true);
   const [activeTab,     setActiveTab]     = useState<"stickers" | "text" | "options">("stickers");
   const [activePack,    setActivePack]    = useState(0);
-  const [emailModal,    setEmailModal]    = useState(false);
-  const [email,         setEmail]         = useState("");
-  const [emailState,    setEmailState]    = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [toast,         setToast]         = useState<string | null>(null);
   const [copied,        setCopied]        = useState(false);
   const [printModal,     setPrintModal]     = useState(false);
@@ -179,18 +176,7 @@ export default function BoothResult() {
       "@media print{body{background:white;}}</style></head>" +
       "<body><img src=\"" + canvas.toDataURL("image/png") + "\" onload=\"window.print();window.close();\" /></body></html>"
     );
-  }
-
-  async function handleEmail() {
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast("Please enter a valid email"); return; }
-    setEmailState("sending");
-    const base64 = getDataUrl("png")?.split(",")[1] ?? "";
-    try {
-      const res  = await fetch("/api/send-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, stripBase64: base64 }) });
-      const data = await res.json();
-      if (data.success) { setEmailState("sent"); showToast("Strip sent to your email 📧"); }
-      else              { setEmailState("error"); showToast("Email failed — please try again"); }
-    } catch { setEmailState("error"); showToast("Email failed — please try again"); }
+  } catch { setEmailState("error"); showToast("Email failed — please try again"); }
   }
 
 
@@ -314,7 +300,6 @@ export default function BoothResult() {
 
             <div className="grid grid-cols-3 gap-2">
               <button onClick={() => { setPrintModal(true); }} className="vpb-btn-secondary justify-center py-2.5 text-xs">Print</button>
-              <button onClick={() => setEmailModal(true)} className="vpb-btn-secondary justify-center py-2.5 text-xs">Email</button>
             </div>
             <button onClick={() => router.push("/booth")} className="text-center font-mono text-xs py-2 transition-colors" style={{ color: "#b08898" }}>
               ← Make another
