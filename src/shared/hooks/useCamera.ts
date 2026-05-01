@@ -6,8 +6,19 @@
 // ─────────────────────────────────────────
 
 // Module-level stream cache — survives component remounts
-// Avoids repeated getUserMedia calls and iOS permission re-prompts
 let _cachedStream: MediaStream | null = null;
+
+// Stop camera immediately when user leaves the page — privacy critical
+if (typeof window !== "undefined") {
+  const stopAllTracks = () => {
+    _cachedStream?.getTracks().forEach(t => t.stop());
+    _cachedStream = null;
+  };
+  window.addEventListener("pagehide", stopAllTracks);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") stopAllTracks();
+  });
+}
 
 import { useRef, useState, useCallback, useEffect } from "react";
 
@@ -32,13 +43,16 @@ export function useCamera(): UseCameraReturn {
   const [error,      setError]      = useState<string | null>(null);
   const [isMirrored, setIsMirrored] = useState(true); // selfie-mode default
 
-  const stopCamera = useCallback((clearCache = false) => {
-    if (clearCache) {
-      _cachedStream?.getTracks().forEach((t) => t.stop());
-      _cachedStream = null;
-    }
+  const stopCamera = useCallback(() => {
+    // Always kill tracks — camera green light must go off
+    _cachedStream?.getTracks().forEach((t) => t.stop());
+    _cachedStream = null;
+    streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
-    if (videoRef.current) videoRef.current.srcObject = null;
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+      videoRef.current.load();
+    }
     setState("idle");
   }, []);
 
