@@ -27,6 +27,7 @@ export default function BoothCamera() {
   const [flash,       setFlash]       = useState(false);
   const [camMode,     setCamMode]     = useState<"wide" | "normal" | "2x">("normal");
   const [isFront,     setIsFront]     = useState(true);
+  const [isMirror,    setIsMirror]    = useState(true);
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
   const totalShots = layout.count;
 
@@ -89,8 +90,8 @@ export default function BoothCamera() {
     if (!ctx) return;
 
     ctx.save();
-    // Mirror for selfie/front camera
-    if (isFront) {
+    // Mirror when enabled
+    if (isMirror) {
       ctx.translate(vw, 0);
       ctx.scale(-1, 1);
     }
@@ -188,7 +189,7 @@ export default function BoothCamera() {
         <div className="relative">
           <div className="relative rounded-card overflow-hidden shadow-strip aspect-[4/3] bg-vpb-surface2">
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover"
-              style={{ transform: isMirrored ? "scaleX(-1)" : "none", filter: filter.css }} />
+              style={{ transform: isMirror ? "scaleX(-1)" : "none", filter: filter.css }} />
             <AnimatePresence>
               {flash && (
                 <motion.div className="absolute inset-0 bg-white"
@@ -221,20 +222,34 @@ export default function BoothCamera() {
                 {filter.label}
               </div>
             )}
-            <button onClick={flipCamera}
-              style={{
-                position:       "absolute", top: 12, right: 12,
-                background:     "rgba(0,0,0,0.55)",
-                backdropFilter: "blur(8px)",
-                border:         "1px solid rgba(255,255,255,0.2)",
-                color:          "#fff", fontFamily: "monospace",
-                fontSize:       "11px", fontWeight: 600,
-                padding:        "6px 12px", borderRadius: "99px",
-                cursor:         "pointer", minHeight: "unset", minWidth: "unset",
-                whiteSpace:     "nowrap",
-              }}>
-              Switch Camera
-            </button>
+            <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 6 }}>
+              <button onClick={() => setIsMirror(p => !p)}
+                style={{
+                  background:     isMirror ? "rgba(232,57,154,0.85)" : "rgba(0,0,0,0.55)",
+                  backdropFilter: "blur(8px)",
+                  border:         "1px solid rgba(255,255,255,0.2)",
+                  color:          "#fff", fontFamily: "monospace",
+                  fontSize:       "11px", fontWeight: 600,
+                  padding:        "6px 12px", borderRadius: "99px",
+                  cursor:         "pointer", minHeight: "unset", minWidth: "unset",
+                  whiteSpace:     "nowrap",
+                }}>
+                Mirror
+              </button>
+              <button onClick={flipCamera}
+                style={{
+                  background:     "rgba(0,0,0,0.55)",
+                  backdropFilter: "blur(8px)",
+                  border:         "1px solid rgba(255,255,255,0.2)",
+                  color:          "#fff", fontFamily: "monospace",
+                  fontSize:       "11px", fontWeight: 600,
+                  padding:        "6px 12px", borderRadius: "99px",
+                  cursor:         "pointer", minHeight: "unset", minWidth: "unset",
+                  whiteSpace:     "nowrap",
+                }}>
+                Switch Camera
+              </button>
+            </div>
 
             {/* Camera mode switcher — zoom row + front/rear toggle */}
             <div style={{
