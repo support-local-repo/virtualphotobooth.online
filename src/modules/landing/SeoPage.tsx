@@ -96,10 +96,9 @@ export default function SeoPage({ h1, intro, features, faqs, slug, canonical }: 
             title="Virtual Photo Booth — Live Preview"
             scrolling="no"
             style={{
-              width: "100%", height: 360, border: "none",
+              width: "117%", height: 424, border: "none",
               pointerEvents: "none", display: "block",
               transform: "scale(0.85)", transformOrigin: "top left",
-              width: "117%", height: 424,
             }}
           />
           <div style={{
