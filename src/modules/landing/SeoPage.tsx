@@ -22,6 +22,17 @@ const ALL_PAGES = [
 ];
 
 export default function SeoPage({ h1, intro, features, faqs, slug, canonical }: SeoPageProps) {
+  const mobileStyle = `
+    @media (max-width: 640px) {
+      .seo-main { padding: 1rem 1rem 3rem !important; }
+      .seo-h1 { font-size: 1.6rem !important; }
+      .seo-intro { font-size: 1rem !important; }
+      .seo-cta { width: 100% !important; text-align: center !important; display: block !important; }
+      .seo-iframe-wrap { height: 200px !important; }
+      .seo-iframe-wrap iframe { height: 235px !important; }
+      .seo-grid { grid-template-columns: 1fr !important; }
+    }
+  `;
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -49,7 +60,8 @@ export default function SeoPage({ h1, intro, features, faqs, slug, canonical }: 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(appSchema) }} />
 
-      <main style={{ maxWidth: 820, margin: "0 auto", padding: "2rem 1.25rem 4rem", fontFamily: "sans-serif", color: "#2d1a26" }}>
+      <style dangerouslySetInnerHTML={{ __html: mobileStyle }} />
+      <main className="seo-main" style={{ maxWidth: 820, margin: "0 auto", padding: "2rem 1.25rem 4rem", fontFamily: "sans-serif", color: "#2d1a26" }}>
 
         <nav style={{ marginBottom: "2rem" }}>
           <Link href="/" style={{ color: "#e8399a", fontWeight: 700, fontSize: 18, textDecoration: "none" }}>
@@ -57,15 +69,15 @@ export default function SeoPage({ h1, intro, features, faqs, slug, canonical }: 
           </Link>
         </nav>
 
-        <h1 style={{ fontSize: "clamp(1.8rem, 5vw, 2.8rem)", fontWeight: 800, lineHeight: 1.2, marginBottom: "1rem", color: "#2d1a26" }}>
+        <h1 className="seo-h1" style={{ fontSize: "clamp(1.8rem, 5vw, 2.8rem)", fontWeight: 800, lineHeight: 1.2, marginBottom: "1rem", color: "#2d1a26" }}>
           {h1}
         </h1>
 
-        <p style={{ fontSize: "1.1rem", lineHeight: 1.8, color: "#5a3a52", marginBottom: "2rem", maxWidth: 680 }}>
+        <p className="seo-intro" style={{ fontSize: "1.1rem", lineHeight: 1.8, color: "#5a3a52", marginBottom: "2rem", maxWidth: 680 }}>
           {intro}
         </p>
 
-        <Link href="/booth" style={{
+        <Link href="https://virtualphotobooth.online/" style={{
           display: "inline-block", background: "#e8399a", color: "#fff",
           fontWeight: 700, fontSize: "1rem", padding: "14px 32px",
           borderRadius: 999, textDecoration: "none", marginBottom: "3rem",
@@ -73,15 +85,34 @@ export default function SeoPage({ h1, intro, features, faqs, slug, canonical }: 
           Start Creating Free Photo Strips ✨
         </Link>
 
-        <div style={{
-          width: "100%", maxWidth: 680, height: 360, borderRadius: 16,
-          background: "linear-gradient(135deg, #ffd6e7 0%, #e8399a22 100%)",
-          border: "2px dashed #e8399a44", display: "flex", alignItems: "center",
-          justifyContent: "center", marginBottom: "3rem", color: "#e8399a",
-          fontSize: "1rem", fontWeight: 600,
-        }}>
-          📸 virtualphotobooth.online — Live Demo
-        </div>
+        <a href="https://virtualphotobooth.online" target="_blank" rel="noopener noreferrer"
+          style={{
+            display: "block", width: "100%", maxWidth: 680, marginBottom: "3rem",
+            borderRadius: 16, overflow: "hidden", border: "2px solid #e8399a22",
+            textDecoration: "none", boxShadow: "0 8px 32px rgba(232,57,154,0.12)",
+          }}>
+          <iframe
+            src="https://virtualphotobooth.online"
+            title="Virtual Photo Booth — Live Preview"
+            scrolling="no"
+            style={{
+              width: "100%", height: 360, border: "none",
+              pointerEvents: "none", display: "block",
+              transform: "scale(0.85)", transformOrigin: "top left",
+              width: "117%", height: 424,
+            }}
+          />
+          <div style={{
+            background: "#fdf4f9", padding: "10px 16px", display: "flex",
+            alignItems: "center", gap: 8, borderTop: "1px solid #e8399a22",
+          }}>
+            <span style={{ fontSize: 14, color: "#e8399a" }}>📸</span>
+            <span style={{ fontSize: 13, color: "#7a5068", fontWeight: 600 }}>
+              virtualphotobooth.online — Click to open
+            </span>
+            <span style={{ marginLeft: "auto", fontSize: 12, color: "#b08898" }}>↗</span>
+          </div>
+        </a>
 
         <section style={{ marginBottom: "3rem" }}>
           <h2 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "1rem" }}>Features</h2>
@@ -132,7 +163,7 @@ export default function SeoPage({ h1, intro, features, faqs, slug, canonical }: 
           <p style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1rem" }}>
             Ready to make your photo strip?
           </p>
-          <Link href="/booth" style={{
+          <Link href="https://virtualphotobooth.online/" style={{
             display: "inline-block", background: "#e8399a", color: "#fff",
             fontWeight: 700, fontSize: "1rem", padding: "14px 32px",
             borderRadius: 999, textDecoration: "none",
