@@ -88,26 +88,56 @@ export default function SeoPage({ h1, intro, features, faqs, slug, canonical }: 
         <a href="https://virtualphotobooth.online" target="_blank" rel="noopener noreferrer"
           style={{
             display: "block", width: "100%", maxWidth: 680, marginBottom: "3rem",
-            borderRadius: 16, overflow: "hidden", border: "2px solid #e8399a22",
-            textDecoration: "none", boxShadow: "0 8px 32px rgba(232,57,154,0.12)",
+            borderRadius: 20, overflow: "hidden", border: "none",
+            textDecoration: "none", boxShadow: "0 12px 48px rgba(232,57,154,0.18)",
+            position: "relative",
           }}>
-          <iframe
-            src="https://virtualphotobooth.online"
-            title="Virtual Photo Booth — Live Preview"
-            scrolling="no"
-            style={{
-              width: "117%", height: 424, border: "none",
-              pointerEvents: "none", display: "block",
-              transform: "scale(0.85)", transformOrigin: "top left",
-            }}
-          />
+          {/* Static replica of landing page hero */}
           <div style={{
-            background: "#fdf4f9", padding: "10px 16px", display: "flex",
+            background: "linear-gradient(135deg, #ffd6e7 0%, #f5c6e0 30%, #e8d5f5 60%, #dce8fa 100%)",
+            padding: "28px 24px 32px", minHeight: 380, position: "relative",
+            display: "flex", flexDirection: "column", alignItems: "center",
+          }}>
+            {/* Nav */}
+            <div style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+              <span style={{ fontWeight: 800, fontSize: 16, color: "#2d1a26", fontFamily: "sans-serif" }}>Virtual Photo Booth</span>
+              <span style={{ background: "#e8399a", color: "#fff", fontWeight: 700, fontSize: 13, padding: "8px 18px", borderRadius: 999, fontFamily: "sans-serif" }}>Open Booth</span>
+            </div>
+            {/* Badge */}
+            <div style={{ border: "1.5px solid #e8399a88", borderRadius: 999, padding: "6px 20px", marginBottom: 20, display: "inline-block" }}>
+              <span style={{ fontFamily: "monospace", fontSize: 11, fontWeight: 700, color: "#e8399a", letterSpacing: 2 }}>✦ FREE FOREVER · NO ACCOUNT NEEDED</span>
+            </div>
+            {/* Floating stickers */}
+            <span style={{ position: "absolute", top: 60, right: 24, fontSize: 28 }}>🌸</span>
+            <span style={{ position: "absolute", top: 100, left: 16, fontSize: 22 }}>📸</span>
+            <span style={{ position: "absolute", bottom: 80, right: 20, fontSize: 20 }}>✨</span>
+            <span style={{ position: "absolute", bottom: 60, left: 20, fontSize: 24 }}>🎀</span>
+            {/* Headline */}
+            <h2 style={{ fontFamily: "Georgia, serif", fontSize: "clamp(2rem, 8vw, 3rem)", fontWeight: 800, color: "#2d1a26", textAlign: "center", lineHeight: 1.15, margin: "0 0 12px" }}>
+              Your vibe,<br />
+              <span style={{ color: "#e8399a" }}>in a strip.</span>
+            </h2>
+            <p style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 15, color: "#7a5068", textAlign: "center", marginBottom: 24, maxWidth: 320, lineHeight: 1.6 }}>
+              Make beautiful photo strips with cute stickers, dreamy filters, and instant download.
+            </p>
+            {/* CTA */}
+            <div style={{ background: "#e8399a", color: "#fff", fontWeight: 700, fontSize: 16, padding: "16px 40px", borderRadius: 999, fontFamily: "sans-serif", boxShadow: "0 8px 24px rgba(232,57,154,0.35)", marginBottom: 20 }}>
+              Start the Booth ✨
+            </div>
+            {/* Trust badges */}
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+              <span style={{ fontFamily: "monospace", fontSize: 10, fontWeight: 700, color: "#7a5068", letterSpacing: 1.5 }}>🎀 LOVED BY TEENS WORLDWIDE</span>
+              <span style={{ fontFamily: "monospace", fontSize: 10, fontWeight: 700, color: "#7a5068", letterSpacing: 1.5 }}>🔒 PHOTOS NEVER LEAVE YOUR DEVICE</span>
+            </div>
+          </div>
+          {/* Click label */}
+          <div style={{
+            background: "#fff", padding: "10px 16px", display: "flex",
             alignItems: "center", gap: 8, borderTop: "1px solid #e8399a22",
           }}>
-            <span style={{ fontSize: 14, color: "#e8399a" }}>📸</span>
-            <span style={{ fontSize: 13, color: "#7a5068", fontWeight: 600 }}>
-              virtualphotobooth.online — Click to open
+            <span style={{ fontSize: 13, color: "#e8399a" }}>📸</span>
+            <span style={{ fontSize: 13, color: "#7a5068", fontWeight: 600, fontFamily: "sans-serif" }}>
+              virtualphotobooth.online — Tap to open
             </span>
             <span style={{ marginLeft: "auto", fontSize: 12, color: "#b08898" }}>↗</span>
           </div>
